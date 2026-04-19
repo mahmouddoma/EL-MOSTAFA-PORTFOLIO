@@ -12,7 +12,7 @@ export class ProductRepositoryImpl implements IProductRepository {
   private http = inject(HttpClient);
   
   getProducts(): Observable<Product[]> {
-    return this.http.get<{products: any[]}>('/assets/data.json').pipe(
+    return this.http.get<{products: any[]}>('assets/data.json').pipe(
       map(data => data.products.map(p => ProductMapper.fromJson(p)))
     );
   }

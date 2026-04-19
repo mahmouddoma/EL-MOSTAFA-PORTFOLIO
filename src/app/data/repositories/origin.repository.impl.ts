@@ -12,7 +12,7 @@ export class OriginRepositoryImpl implements IOriginRepository {
   private http = inject(HttpClient);
 
   getOrigins(): Observable<Origin[]> {
-    return this.http.get<{origins: any[]}>('/assets/data.json').pipe(
+    return this.http.get<{origins: any[]}>('assets/data.json').pipe(
       map(data => data.origins.map(o => OriginMapper.fromJson(o)))
     );
   }

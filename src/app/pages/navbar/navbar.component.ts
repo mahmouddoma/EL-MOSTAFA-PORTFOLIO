@@ -19,7 +19,9 @@ import { AnimationService } from '../../core/services/animation.service';
 
     <nav [class.scrolled]="isScrolled" [class.menu-open]="isMenuOpen()">
       <div class="container nav-content">
-        <a class="brand brand-glow" href="#" (click)="scrollToTop($event)">EL MOSTAFA</a>
+        <a class="brand" href="#" (click)="scrollToTop($event)">
+          <img src="assets/logo.png" alt="EL MOSTAFA" class="logo-img" />
+        </a>
 
         <!-- Desktop Links -->
         <div class="links d-none d-md-flex">
@@ -76,22 +78,28 @@ import { AnimationService } from '../../core/services/animation.service';
         z-index: 1002;
       }
 
-      .brand-glow {
-        font-family: var(--font-display);
-        font-weight: 900;
-        font-size: 1.6rem;
+      .brand {
+        display: flex;
+        align-items: center;
         text-decoration: none;
-        letter-spacing: 3px;
-        background: linear-gradient(45deg, #fff, var(--color-primary, #f57c00));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        transition: all 0.5s ease;
-        position: relative;
       }
 
-      .brand-glow:hover {
-        text-shadow: 0 0 15px rgba(245, 124, 0, 0.4);
-        filter: brightness(1.2);
+      .logo-img {
+        height: 50px;
+        width: auto;
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        filter: drop-shadow(0 0 8px rgba(245, 124, 0, 0.2));
+      }
+
+      .brand:hover .logo-img {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 15px rgba(245, 124, 0, 0.4)) brightness(1.1);
+      }
+
+      @media (max-width: 768px) {
+        .logo-img {
+          height: 40px;
+        }
       }
 
       .links {
