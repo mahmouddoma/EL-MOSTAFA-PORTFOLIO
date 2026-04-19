@@ -1,0 +1,151 @@
+import { Component } from '@angular/core';
+import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
+
+@Component({
+  selector: 'app-footer',
+  standalone: true,
+  imports: [ScrollRevealDirective],
+  template: `
+    <footer class="footer bg-dark text-white pt-5 pb-4" id="contact" appScrollReveal>
+      <div class="footer-nano-line"></div>
+      <div class="container pt-4">
+        <div class="row mb-5">
+          <div class="col-md-6 mb-4 mb-md-0 text-center text-md-start">
+            <h2 class="brand-glow mb-3">EL MOSTAFA</h2>
+            <p class="text-white-50 mx-auto ms-md-0 me-md-auto" style="max-width: 350px">
+              Premium quality fruit importers serving Cairo with the finest selection from around
+              the globe since 2010.
+            </p>
+          </div>
+          <div class="col-md-6 text-center text-md-end">
+            <h3 class="font-playfair text-white mb-4">
+              Get in <span class="text-primary">Touch</span>
+            </h3>
+            <ul class="contact-list list-unstyled">
+              <li class="mb-2">
+                <strong class="text-white-50 me-2">ADDRESS</strong>
+                <span class="contact-value">Cairo, Egypt</span>
+              </li>
+              <li class="mb-2">
+                <strong class="text-white-50 me-2">EMAIL</strong>
+                <span class="contact-value">contact&#64;elmostafafruits.com</span>
+              </li>
+              <li class="mb-0">
+                <strong class="text-white-50 me-2">PHONE</strong>
+                <span class="contact-value">+20 100 000 0000</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row pt-4 mt-4 bottom-bar align-items-center">
+          <div class="col-md-6 mb-3 mb-md-0 text-center text-md-start">
+            <small class="text-white-50"
+              >&copy; {{ currentYear }} El Mostafa Importers. All rights reserved.</small
+            >
+          </div>
+          <div class="col-md-6 text-center text-md-end footer-links">
+            <a href="#" class="footer-link me-4">Privacy Policy</a>
+            <a href="#" class="footer-link">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  `,
+  styles: [
+    `
+      .footer {
+        position: relative;
+        z-index: 10;
+        background-color: var(--color-dark) !important;
+      }
+
+      .footer-nano-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(245, 124, 0, 0.5), transparent);
+        box-shadow: 0 0 15px rgba(245, 124, 0, 0.4);
+      }
+
+      .brand-glow {
+        font-family: var(--font-display);
+        font-weight: 900;
+        letter-spacing: 3px;
+        margin: 0;
+        font-size: 2.5rem;
+        background: linear-gradient(45deg, #fff, #f57c00);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transition: all 0.5s ease;
+        cursor: default;
+      }
+      .brand-glow:hover {
+        background: linear-gradient(45deg, #f57c00, #fff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 20px rgba(245, 124, 0, 0.3);
+      }
+
+      .font-playfair {
+        font-family: var(--font-display);
+      }
+
+      .text-primary {
+        color: var(--color-primary) !important;
+      }
+
+      .text-white-50 {
+        color: rgba(255, 255, 255, 0.5) !important;
+        font-size: 0.95rem;
+      }
+
+      .contact-list strong {
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+      }
+
+      .contact-value {
+        font-family: var(--font-body);
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .bottom-bar {
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .footer-link {
+        color: rgba(255, 255, 255, 0.5);
+        text-decoration: none;
+        font-size: 0.85rem;
+        position: relative;
+        padding-bottom: 2px;
+        transition: color 0.3s ease;
+      }
+
+      .footer-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: 0;
+        left: 0;
+        background-color: var(--color-primary);
+        transition: width 0.3s ease;
+      }
+
+      .footer-link:hover {
+        color: #fff;
+      }
+
+      .footer-link:hover::after {
+        width: 100%;
+      }
+    `,
+  ],
+})
+export class FooterComponent {
+  currentYear = new Date().getFullYear();
+}

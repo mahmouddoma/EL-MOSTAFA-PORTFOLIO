@@ -1,0 +1,97 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "name": "Gala Apples",
+      "imageUrl": "assets/real-apple.png",
+      "imageFilter": "none",
+      "origin": ["Italy", "Poland"],
+      "varieties": ["Gala", "Red Delicious"],
+      "description": "Crisp and juicy ruby red apples sourced from the finest orchards.",
+      "category": "stone"
+    },
+    {
+      "id": "2",
+      "name": "Granny Smith Apples",
+      "imageUrl": "assets/real-apple.png",
+      "imageFilter": "hue-rotate(-95deg) sepia(0.2) saturate(1.5)",
+      "origin": ["France"],
+      "varieties": ["Granny Smith"],
+      "description": "Vibrant green, tart, and refreshing apples perfect for snacking.",
+      "category": "stone"
+    },
+    {
+      "id": "3",
+      "name": "Green Kiwi",
+      "imageUrl": "assets/real-kiwi.png",
+      "imageFilter": "none",
+      "origin": ["Greece", "Italy"],
+      "varieties": ["Hayward"],
+      "description": "Vibrant, tangy, and sweet green kiwifruit packed with vitamins.",
+      "category": "exotic"
+    },
+    {
+      "id": "4",
+      "name": "SunGold Kiwi",
+      "imageUrl": "assets/real-kiwi.png",
+      "imageFilter": "hue-rotate(-45deg) saturate(1.8) brightness(1.2)",
+      "origin": ["New Zealand", "Italy"],
+      "varieties": ["SunGold"],
+      "description": "A sweeter, smoother kiwi with vibrant yellow flesh.",
+      "category": "exotic"
+    },
+    {
+      "id": "5",
+      "name": "Valencia Oranges",
+      "imageUrl": "assets/real-orange.png",
+      "imageFilter": "none",
+      "origin": ["Egypt", "Spain"],
+      "varieties": ["Valencia", "Navel"],
+      "description": "Perfectly round, sweet citrus oranges bursting with fresh juice.",
+      "category": "citrus"
+    },
+    {
+      "id": "6",
+      "name": "Blood Oranges",
+      "imageUrl": "assets/real-orange.png",
+      "imageFilter": "hue-rotate(320deg) saturate(1.5) contrast(1.2)",
+      "origin": ["Italy"],
+      "varieties": ["Moro", "Tarocco"],
+      "description": "Deep red pigmented citrus with a distinct raspberry-like flavor.",
+      "category": "citrus"
+    },
+    {
+      "id": "7",
+      "name": "Sweet Strawberries",
+      "imageUrl": "assets/real-strawberry.png",
+      "imageFilter": "none",
+      "origin": ["Egypt", "Morocco"],
+      "varieties": ["Albion"],
+      "description": "Fresh, bright red berries with intensely sweet and floral notes.",
+      "category": "stone"
+    },
+    {
+      "id": "8",
+      "name": "Pineberries",
+      "imageUrl": "assets/real-strawberry.png",
+      "imageFilter": "hue-rotate(40deg) grayscale(0.6) brightness(1.7)",
+      "origin": ["Chile"],
+      "varieties": ["White Carolina"],
+      "description": "Rare white strawberries with red seeds and a subtle pineapple aroma.",
+      "category": "exotic"
+    }
+  ],
+  "origins": [
+    {
+      "flag": "🇮🇹",
+      "country": "Italy",
+      "products": ["Gala Apples", "Green Kiwi", "SunGold Kiwi", "Blood Oranges"]
+    },
+    { "flag": "🇪🇬", "country": "Egypt", "products": ["Valencia Oranges", "Sweet Strawberries"] },
+    { "flag": "🇬🇷", "country": "Greece", "products": ["Green Kiwi"] },
+    { "flag": "🇪🇸", "country": "Spain", "products": ["Valencia Oranges"] },
+    { "flag": "🇫🇷", "country": "France", "products": ["Granny Smith Apples"] },
+    { "flag": "🇨🇱", "country": "Chile", "products": ["Pineberries"] },
+    { "flag": "🇳🇿", "country": "New Zealand", "products": ["SunGold Kiwi"] }
+  ]
+}
