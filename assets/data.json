@@ -2,96 +2,103 @@
   "products": [
     {
       "id": "1",
-      "name": "Gala Apples",
+      "name": "Premium Apples",
       "imageUrl": "assets/real-apple.png",
       "imageFilter": "none",
-      "origin": ["Italy", "Poland"],
-      "varieties": ["Gala", "Red Delicious"],
-      "description": "Crisp and juicy ruby red apples sourced from the finest orchards.",
+      "origin": ["Italy", "Poland", "Greece"],
+      "varieties": ["Gala", "Red Delicious", "Golden", "Eda Red", "Nida Red"],
+      "description": "Exquisite selection of crisp, premium apples from the heart of European orchards.",
       "category": "stone"
     },
     {
       "id": "2",
-      "name": "Granny Smith Apples",
-      "imageUrl": "assets/real-apple.png",
-      "imageFilter": "hue-rotate(-95deg) sepia(0.2) saturate(1.5)",
-      "origin": ["France"],
-      "varieties": ["Granny Smith"],
-      "description": "Vibrant green, tart, and refreshing apples perfect for snacking.",
-      "category": "stone"
-    },
-    {
-      "id": "3",
-      "name": "Green Kiwi",
+      "name": "Fresh Kiwi",
       "imageUrl": "assets/real-kiwi.png",
       "imageFilter": "none",
       "origin": ["Greece", "Italy"],
       "varieties": ["Hayward"],
-      "description": "Vibrant, tangy, and sweet green kiwifruit packed with vitamins.",
+      "description": "Hand-picked, vibrant green kiwifruit with a perfect balance of sweetness and tang.",
+      "category": "exotic"
+    },
+    {
+      "id": "3",
+      "name": "Hass Avocado",
+      "imageUrl": "assets/real-kiwi.png",
+      "imageFilter": "hue-rotate(20deg) brightness(0.8)",
+      "origin": ["Kenya"],
+      "varieties": ["Hass"],
+      "description": "Rich, creamy, and nutty avocados sourced from sustainable Kenyan farms.",
       "category": "exotic"
     },
     {
       "id": "4",
-      "name": "SunGold Kiwi",
-      "imageUrl": "assets/real-kiwi.png",
-      "imageFilter": "hue-rotate(-45deg) saturate(1.8) brightness(1.2)",
-      "origin": ["New Zealand", "Italy"],
-      "varieties": ["SunGold"],
-      "description": "A sweeter, smoother kiwi with vibrant yellow flesh.",
-      "category": "exotic"
+      "name": "Sweet Cherries",
+      "imageUrl": "assets/real-strawberry.png",
+      "imageFilter": "hue-rotate(330deg) brightness(0.8)",
+      "origin": ["Greece", "Italy"],
+      "varieties": ["Bing"],
+      "description": "Dark, succulent cherries bursting with seasonal sweetness.",
+      "category": "stone"
     },
     {
       "id": "5",
-      "name": "Valencia Oranges",
+      "name": "Gold Pineapples",
       "imageUrl": "assets/real-orange.png",
-      "imageFilter": "none",
-      "origin": ["Egypt", "Spain"],
-      "varieties": ["Valencia", "Navel"],
-      "description": "Perfectly round, sweet citrus oranges bursting with fresh juice.",
-      "category": "citrus"
+      "imageFilter": "hue-rotate(-20deg) contrast(1.1)",
+      "origin": ["Costa Rica", "Malaysia"],
+      "varieties": ["MD2"],
+      "description": "Golden, honey-sweet pineapples directly from tropical paradises.",
+      "category": "exotic"
     },
     {
       "id": "6",
-      "name": "Blood Oranges",
+      "name": "Premium Bananas",
       "imageUrl": "assets/real-orange.png",
-      "imageFilter": "hue-rotate(320deg) saturate(1.5) contrast(1.2)",
-      "origin": ["Italy"],
-      "varieties": ["Moro", "Tarocco"],
-      "description": "Deep red pigmented citrus with a distinct raspberry-like flavor.",
-      "category": "citrus"
+      "imageFilter": "hue-rotate(-30deg) saturate(1.5)",
+      "origin": ["Ecuador"],
+      "description": "The perfect tropical snack: creamy and naturally sweet bananas from Ecuador.",
+      "category": "exotic"
     },
     {
       "id": "7",
-      "name": "Sweet Strawberries",
+      "name": "Italian Plums",
       "imageUrl": "assets/real-strawberry.png",
-      "imageFilter": "none",
-      "origin": ["Egypt", "Morocco"],
-      "varieties": ["Albion"],
-      "description": "Fresh, bright red berries with intensely sweet and floral notes.",
+      "imageFilter": "hue-rotate(200deg) brightness(0.7)",
+      "origin": ["Italy"],
+      "description": "Deep purple, juicy plums with a rich, velvety texture.",
       "category": "stone"
     },
     {
       "id": "8",
-      "name": "Pineberries",
+      "name": "Sun-Kissed Peaches",
       "imageUrl": "assets/real-strawberry.png",
-      "imageFilter": "hue-rotate(40deg) grayscale(0.6) brightness(1.7)",
-      "origin": ["Chile"],
-      "varieties": ["White Carolina"],
-      "description": "Rare white strawberries with red seeds and a subtle pineapple aroma.",
-      "category": "exotic"
+      "imageFilter": "hue-rotate(40deg) saturate(1.2)",
+      "origin": ["Italy"],
+      "description": "Sweet, fragrant, and perfectly ripe peaches from the Italian sun.",
+      "category": "stone"
     }
   ],
   "origins": [
     {
       "flag": "🇮🇹",
       "country": "Italy",
-      "products": ["Gala Apples", "Green Kiwi", "SunGold Kiwi", "Blood Oranges"]
+      "products": [
+        "Premium Apples",
+        "Fresh Kiwi",
+        "Sweet Cherries",
+        "Italian Plums",
+        "Sun-Kissed Peaches"
+      ]
     },
-    { "flag": "🇪🇬", "country": "Egypt", "products": ["Valencia Oranges", "Sweet Strawberries"] },
-    { "flag": "🇬🇷", "country": "Greece", "products": ["Green Kiwi"] },
-    { "flag": "🇪🇸", "country": "Spain", "products": ["Valencia Oranges"] },
-    { "flag": "🇫🇷", "country": "France", "products": ["Granny Smith Apples"] },
-    { "flag": "🇨🇱", "country": "Chile", "products": ["Pineberries"] },
-    { "flag": "🇳🇿", "country": "New Zealand", "products": ["SunGold Kiwi"] }
+    { "flag": "🇵🇱", "country": "Poland", "products": ["Premium Apples"] },
+    {
+      "flag": "🇬🇷",
+      "country": "Greece",
+      "products": ["Premium Apples", "Fresh Kiwi", "Sweet Cherries"]
+    },
+    { "flag": "🇰🇪", "country": "Kenya", "products": ["Hass Avocado"] },
+    { "flag": "🇨🇷", "country": "Costa Rica", "products": ["Gold Pineapples"] },
+    { "flag": "🇲🇾", "country": "Malaysia", "products": ["Gold Pineapples"] },
+    { "flag": "🇪🇨", "country": "Ecuador", "products": ["Premium Bananas"] }
   ]
 }
