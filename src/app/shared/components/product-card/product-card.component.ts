@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Product } from '../../../domain/models/product.model';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-product-card',
@@ -38,7 +39,7 @@ import { Product } from '../../../domain/models/product.model';
         <!-- Stable Info (Always visible, clean, small) -->
         <div class="meta-section">
           <div class="category-indicator">{{ product.category }}</div>
-          <h3 class="fruit-title font-playfair">{{ product.name }}</h3>
+          <h3 class="fruit-title font-playfair">{{ lang.isRtl() ? product.name_ar : product.name }}</h3>
         </div>
 
         <!-- Hidden Hover Details -->
@@ -84,12 +85,8 @@ import { Product } from '../../../domain/models/product.model';
         left: 0;
         right: 0;
         bottom: 0;
-        background: radial-gradient(
-          circle at 50% 0%,
-          rgba(40, 40, 45, 1) 0%,
-          rgba(18, 18, 20, 1) 80%
-        );
-        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
         border-radius: 12px;
         z-index: 1;
         transition:
@@ -98,12 +95,8 @@ import { Product } from '../../../domain/models/product.model';
       }
 
       .premium-showcase:hover .card-bg {
-        border-color: rgba(245, 124, 0, 0.25);
-        background: radial-gradient(
-          circle at 50% 30%,
-          rgba(50, 45, 40, 1) 0%,
-          rgba(18, 18, 20, 1) 80%
-        );
+        border-color: var(--color-primary);
+        background: var(--bg-surface);
       }
 
       /* Glass Shine Sweep */
@@ -233,7 +226,7 @@ import { Product } from '../../../domain/models/product.model';
       .fruit-title {
         font-size: 1.15rem;
         font-weight: 700;
-        color: #ffffff;
+        color: var(--text-primary);
         margin: 0;
         transition: color 0.3s;
       }
@@ -275,9 +268,9 @@ import { Product } from '../../../domain/models/product.model';
         font-size: 0.65rem;
         padding: 4px 8px;
         border-radius: 4px;
-        background: rgba(255, 255, 255, 0.03);
-        color: rgba(255, 255, 255, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--bg-surface);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-color);
         opacity: 0;
         transform: translateY(15px) scale(0.9);
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -286,14 +279,15 @@ import { Product } from '../../../domain/models/product.model';
       .premium-showcase:hover .variety-pill {
         opacity: 1;
         transform: translateY(0) scale(1);
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--color-primary);
         color: #fff;
-        border-color: rgba(255, 255, 255, 0.2);
+        border-color: var(--color-primary);
       }
     `,
   ],
 })
 export class ProductCardComponent {
+  lang = inject(LanguageService);
   @Input() product!: Product;
   @Output() cardClicked = new EventEmitter<Product>();
 

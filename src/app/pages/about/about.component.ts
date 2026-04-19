@@ -5,8 +5,10 @@ import {
   ElementRef,
   ViewChild,
   AfterViewInit,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LanguageService } from '../../core/services/language.service';
 
 @Component({
   selector: 'app-about',
@@ -24,9 +26,11 @@ import { CommonModule } from '@angular/common';
         </div>
 
         <div class="header-content" [style.opacity]="1 - scrollProgress * 5">
-          <span class="eyebrow">OUR STORY</span>
-          <h2 class="display-3 font-playfair fw-bold text-white mb-0">The Journey</h2>
-          <p class="text-white">Scroll to trace the path of perfection.</p>
+          <span class="eyebrow">{{ lang.translate('hero.story') }}</span>
+          <h2 class="display-3 font-playfair fw-bold theme-text mb-0">
+            {{ lang.translate('hero.journey') }}
+          </h2>
+          <p class="theme-text">{{ lang.translate('hero.scroll') }}</p>
         </div>
 
         <!-- The Glowing Pipeline -->
@@ -75,7 +79,6 @@ import { CommonModule } from '@angular/common';
         </div>
 
         <!-- Nodes / Waypoints -->
-        <!-- Node 1: The Origin (Show from 15% to 45%) -->
         <div
           class="node-content node-left"
           [class.active]="scrollProgress > 0.15 && scrollProgress < 0.45"
@@ -83,10 +86,9 @@ import { CommonModule } from '@angular/common';
         >
           <div class="glass-node">
             <span class="node-number">01</span>
-            <h3 class="font-playfair text-gradient">The Origin</h3>
-            <p class="text-white mb-0">
-              Sourced from the world's most premium, sun-drenched orchards. We partner directly with
-              dedicated growers to ensure excellence from the root.
+            <h3 class="font-playfair text-gradient">{{ lang.translate('about.nodes.0.title') }}</h3>
+            <p class="theme-text mb-0">
+              {{ lang.translate('about.nodes.0.desc') }}
             </p>
           </div>
         </div>
@@ -99,10 +101,9 @@ import { CommonModule } from '@angular/common';
         >
           <div class="glass-node">
             <span class="node-number">02</span>
-            <h3 class="font-playfair text-gradient">The Selection</h3>
-            <p class="text-white mb-0">
-              Rigorous hand-picking and unrivaled quality control. Every single fruit is
-              meticulously inspected to meet the El Mostafa standard of vibrancy.
+            <h3 class="font-playfair text-gradient">{{ lang.translate('about.nodes.1.title') }}</h3>
+            <p class="theme-text mb-0">
+              {{ lang.translate('about.nodes.1.desc') }}
             </p>
           </div>
         </div>
@@ -115,10 +116,9 @@ import { CommonModule } from '@angular/common';
         >
           <div class="glass-node">
             <span class="node-number">03</span>
-            <h3 class="font-playfair text-gradient">The Delivery</h3>
-            <p class="text-white mb-0">
-              An unbroken cold chain bridging continents directly to Cairo. We guarantee farm-fresh
-              crispness and an unforgettable taste in every bite.
+            <h3 class="font-playfair text-gradient">{{ lang.translate('about.nodes.2.title') }}</h3>
+            <p class="theme-text mb-0">
+              {{ lang.translate('about.nodes.2.desc') }}
             </p>
           </div>
         </div>
@@ -138,8 +138,9 @@ import { CommonModule } from '@angular/common';
 
       .timeline-section {
         position: relative;
-        background-color: var(--color-dark);
+        background-color: var(--bg-primary);
         height: 400vh;
+        transition: background-color 0.5s ease;
       }
 
       .sticky-viewport {
@@ -148,10 +149,11 @@ import { CommonModule } from '@angular/common';
         height: 100vh;
         width: 100%;
         overflow: hidden;
-        background-color: var(--color-dark);
+        background-color: var(--bg-primary);
         display: flex;
         justify-content: center;
         align-items: center;
+        transition: background-color 0.5s ease;
       }
 
       .bg-typography {
@@ -161,14 +163,14 @@ import { CommonModule } from '@angular/common';
         font-family: var(--font-display);
         font-size: 35vw;
         font-weight: 900;
-        color: rgba(255, 255, 255, 0.02);
+        color: var(--border-color);
         white-space: nowrap;
         pointer-events: none;
         z-index: 1;
       }
       .text-outline {
         color: transparent;
-        -webkit-text-stroke: 2px rgba(255, 255, 255, 0.05);
+        -webkit-text-stroke: 2px var(--border-color);
       }
 
       /* Intro Header */
@@ -195,7 +197,7 @@ import { CommonModule } from '@angular/common';
         left: 50%;
         width: 4px;
         transform: translateX(-50%);
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--border-color);
         border-radius: 4px;
         z-index: 5;
       }
@@ -212,7 +214,6 @@ import { CommonModule } from '@angular/common';
         left: 50%;
         z-index: 20;
         margin-top: 10vh;
-        mix-blend-mode: screen;
       }
       .tracker-glow {
         position: absolute;
@@ -260,13 +261,16 @@ import { CommonModule } from '@angular/common';
       }
 
       .glass-node {
-        background: rgba(30, 30, 30, 0.6);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: var(--glass-bg);
+        border: 1px solid var(--border-color);
         border-radius: 20px;
         padding: 2.5rem;
         position: relative;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+      }
+      .theme-text {
+        color: var(--text-primary);
       }
       .node-number {
         position: absolute;
@@ -275,13 +279,12 @@ import { CommonModule } from '@angular/common';
         font-size: 5rem;
         font-family: var(--font-display);
         font-weight: 900;
-        color: rgba(255, 255, 255, 0.05);
+        color: var(--border-color);
         line-height: 1;
       }
 
       .glass-node p {
-        color: #fff !important;
-        opacity: 0.9;
+        color: var(--text-secondary);
         line-height: 1.6;
       }
 
@@ -360,6 +363,7 @@ import { CommonModule } from '@angular/common';
 })
 export class AboutComponent implements AfterViewInit {
   @ViewChild('timelineSection') section!: ElementRef<HTMLElement>;
+  lang = inject(LanguageService);
 
   scrollProgress = 0;
   trackerScale = 1;

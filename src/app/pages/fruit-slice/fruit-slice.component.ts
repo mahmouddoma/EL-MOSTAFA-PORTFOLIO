@@ -5,8 +5,10 @@ import {
   HostListener,
   AfterViewInit,
   OnInit,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LanguageService } from '../../core/services/language.service';
 
 interface Particle {
   id: number;
@@ -47,10 +49,9 @@ interface Particle {
           <h2
             class="display-3 font-playfair font-weight-bold text-gradient"
             [style.letterSpacing.px]="revealLetterSpacing"
-          >
-            The Core of<br />Excellence
-          </h2>
-          <p class="lead">Unveiling nature's finest selections, handpicked for perfection.</p>
+            [innerHTML]="lang.translate('slice.title')"
+          ></h2>
+          <p class="theme-text">{{ lang.translate('slice.subtitle') }}</p>
         </div>
 
         <!-- The Fruit Halves wrapped in tension container -->
@@ -145,9 +146,10 @@ interface Particle {
       }
       .slice-section {
         height: 300vh; /* creates deep scrolling room for long interaction */
-        background-color: var(--color-dark);
-        color: #fff;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
         position: relative;
+        transition: background-color 0.5s ease;
       }
       .sticky-container {
         position: sticky;
@@ -157,7 +159,14 @@ interface Particle {
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: var(--color-dark); /* MUST BE SOLID */
+        background-color: var(--bg-primary);
+        transition: background-color 0.5s ease;
+      }
+
+      .theme-text {
+        color: var(--text-primary);
+        font-size: 1.25rem;
+        font-weight: 300;
       }
 
       .shockwave {
@@ -247,6 +256,7 @@ interface Particle {
 })
 export class FruitSliceComponent implements OnInit, AfterViewInit {
   @ViewChild('sliceSection') section!: ElementRef<HTMLElement>;
+  lang = inject(LanguageService);
 
   // Fruit 2D Translation vars
   topTranslateY = 0;

@@ -1,6 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Origin } from '../../../domain/models/origin.model';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-origin-card',
@@ -17,7 +18,7 @@ import { Origin } from '../../../domain/models/origin.model';
             <span class="dot"></span>
             <span class="ring"></span>
           </div>
-          <h3 class="font-playfair">{{ origin.country }}</h3>
+          <h3 class="font-playfair">{{ lang.isRtl() ? origin.country_ar : origin.country }}</h3>
         </div>
 
         <div class="products-list">
@@ -40,14 +41,10 @@ import { Origin } from '../../../domain/models/origin.model';
 
       .premium-node {
         position: relative;
-        background: radial-gradient(
-          circle at top left,
-          rgba(40, 40, 45, 1) 0%,
-          rgba(18, 18, 20, 1) 100%
-        );
+        background: var(--card-bg);
         padding: 1.5rem;
         border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-color);
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -62,13 +59,9 @@ import { Origin } from '../../../domain/models/origin.model';
 
       .premium-node:hover {
         transform: translateY(-8px);
-        border-color: rgba(245, 124, 0, 0.4);
+        border-color: var(--color-primary);
         box-shadow: 0 15px 40px rgba(245, 124, 0, 0.15);
-        background: radial-gradient(
-          circle at top left,
-          rgba(50, 45, 40, 1) 0%,
-          rgba(18, 18, 20, 1) 100%
-        );
+        background: var(--bg-surface);
       }
 
       .watermark-flag {
@@ -78,7 +71,7 @@ import { Origin } from '../../../domain/models/origin.model';
         font-size: 8rem;
         font-weight: 800;
         line-height: 1;
-        opacity: 0.03; /* Extremely faint */
+        opacity: 0.05; /* Faint watermark-like flag */
         user-select: none;
         pointer-events: none;
         transition:
@@ -110,7 +103,7 @@ import { Origin } from '../../../domain/models/origin.model';
       h3 {
         margin: 0;
         font-size: 1.4rem;
-        color: #fff;
+        color: var(--text-primary);
         font-weight: 600;
         letter-spacing: 0.5px;
       }
@@ -165,17 +158,17 @@ import { Origin } from '../../../domain/models/origin.model';
         font-size: 0.75rem;
         padding: 5px 10px;
         border-radius: 6px;
-        background: rgba(255, 255, 255, 0.03);
-        color: rgba(255, 255, 255, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--bg-surface);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-color);
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         transform: translateX(0);
       }
 
       .premium-node:hover .product-badge {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--color-primary);
         color: #fff;
-        border-color: rgba(255, 255, 255, 0.2);
+        border-color: var(--color-primary);
         transform: translateX(4px);
       }
 
@@ -197,5 +190,6 @@ import { Origin } from '../../../domain/models/origin.model';
   ],
 })
 export class OriginCardComponent {
+  lang = inject(LanguageService);
   @Input({ required: true }) origin!: Origin;
 }

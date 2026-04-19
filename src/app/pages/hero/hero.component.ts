@@ -1,7 +1,8 @@
-import { Component, HostListener, OnInit, inject } from '@angular/core';
+import { Component, HostListener, OnInit, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { AnimationService } from '../../core/services/animation.service';
+import { LanguageService } from '../../core/services/language.service';
 
 interface FloatingFruit {
   imgSrc: string;
@@ -45,23 +46,40 @@ interface FloatingFruit {
 
       <div class="container hero-content">
         <div class="hero-text-wrapper stagger-item">
-          <span class="eyebrow glass-panel">PREMIUM FRUIT IMPORTERS</span>
+          <span class="eyebrow glass-panel">{{ lang.translate('hero.eyebrow') }}</span>
         </div>
-        <div class="hero-title-wrapper stagger-item blend-text-container">
-          <h1 class="hero-title blend-mode-difference">
-            EL MOSTAFA
-            <span class="hero-title-outline">EL MOSTAFA</span>
+        <div class="hero-title-wrapper stagger-item">
+          <!-- Outline Title (Background Parallax) -->
+          <div class="hero-title-outline-container" [style.transform]="getOutlineTransform()">
+            <span
+              *ngFor="let char of titleChars(); let i = index"
+              class="char-outline"
+              [style.transition-delay]="i * 0.05 + 's'"
+            >
+              {{ char === ' ' ? '&nbsp;' : char }}
+            </span>
+          </div>
+
+          <!-- Solid Title (Main) -->
+          <h1 class="hero-title">
+            <span
+              *ngFor="let char of titleChars(); let i = index"
+              class="char-solid"
+              [style.transition-delay]="i * 0.05 + 's'"
+              [style.transform]="getCharTransform(i)"
+            >
+              {{ char === ' ' ? '&nbsp;' : char }}
+            </span>
           </h1>
         </div>
         <div class="hero-subtitle-wrapper stagger-item">
           <p class="hero-subtitle">
-            Cairo's leading importer of premium tropical and exotic fruits. Sourced globally,
-            delivered fresh.
+            {{ lang.translate('hero.subtitle') }}
           </p>
         </div>
         <div class="hero-cta-wrapper stagger-item">
           <button class="btn btn-primary cta-button glow-border" (click)="scrollToProducts()">
-            <span style="position:relative; z-index:2">EXPLORE PRODUCTS</span>
+            <span style="position:relative; z-index:2">{{ lang.translate('hero.cta') }}</span>
           </button>
         </div>
       </div>
@@ -72,12 +90,13 @@ interface FloatingFruit {
       .hero-section {
         height: 100vh;
         width: 100%;
-        background-color: var(--color-dark);
+        background-color: var(--bg-primary);
         position: relative;
         overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: background-color 0.5s ease;
       }
       .hero-orb {
         position: absolute;
@@ -95,7 +114,7 @@ interface FloatingFruit {
         position: relative;
         z-index: 10;
         text-align: center;
-        color: var(--color-white, #fff);
+        color: var(--text-primary);
         pointer-events: none;
       }
       .hero-content * {
@@ -113,31 +132,107 @@ interface FloatingFruit {
         padding: 8px 16px;
         border-radius: 30px;
       }
-      .blend-text-container {
+      .hero-title-wrapper {
         position: relative;
-        z-index: 20;
-        mix-blend-mode: exclusion;
+        perspective: 1000px;
+        margin: 2rem 0;
       }
       .hero-title {
         font-family: var(--font-display);
-        font-size: clamp(4rem, 12vw, 11rem);
+        font-size: clamp(3rem, 10vw, 9rem);
         font-weight: 900;
-        line-height: 0.9;
+        line-height: 0.95;
         margin: 0;
         position: relative;
         text-transform: uppercase;
-        color: #fff;
+        color: var(--text-primary);
+        display: flex;
+        justify-content: center;
+        gap: 0.1em;
+        z-index: 10;
+        direction: ltr;
       }
-      .hero-title-outline {
-        display: block;
+      :host-context([dir='rtl']) .hero-title {
+        gap: 0;
+        direction: rtl;
+      }
+      .char-solid {
+        display: inline-block;
+        transition:
+          transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+          opacity 1s ease;
+        animation: charReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+        filter: blur(10px);
+        transform: translateY(40px) rotateX(-45deg);
+        position: relative;
+      }
+      @keyframes charReveal {
+        to {
+          opacity: 1;
+          filter: blur(0);
+          transform: translateY(0) rotateX(0);
+        }
+      }
+
+      .hero-title-outline-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -40%);
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 0.1em;
+        font-family: var(--font-display);
+        font-size: clamp(3.5rem, 11vw, 10rem);
+        font-weight: 900;
+        text-transform: uppercase;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.4;
+        direction: ltr;
+      }
+      :host-context([dir='rtl']) .hero-title-outline-container {
+        gap: 0;
+        direction: rtl;
+      }
+      .char-outline {
+        display: inline-block;
         color: transparent;
-        -webkit-text-stroke: 2px rgba(255, 255, 255, 0.4);
+        -webkit-text-stroke: 1px var(--border-color);
+        animation: charReveal 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+        transform: translateY(60px) scale(0.9);
       }
+
+      .char-solid::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transform: skewX(-20deg);
+        animation: shimmerLetter 6s infinite;
+      }
+
+      @keyframes shimmerLetter {
+        0%,
+        80% {
+          left: -100%;
+        }
+        100% {
+          left: 200%;
+        }
+      }
+
       .hero-subtitle {
         font-size: clamp(1rem, 2vw, 1.25rem);
         max-width: 600px;
-        margin: 2rem auto;
-        color: rgba(255, 255, 255, 0.7);
+        margin: 1.5rem auto;
+        color: var(--text-secondary);
         line-height: 1.6;
       }
       .cta-button {
@@ -215,9 +310,18 @@ interface FloatingFruit {
 export class HeroComponent implements OnInit {
   floatingFruits: FloatingFruit[] = [];
   private animationService = inject(AnimationService);
+  lang = inject(LanguageService);
 
   mouseX = () => this.animationService.laggingPosition().x;
   mouseY = () => this.animationService.laggingPosition().y;
+
+  titleChars = computed(() => {
+    const title = this.lang.translate('hero.title');
+    return this.lang.currentLang() === 'ar' ? [title] : title.split('');
+  });
+
+  titleX = computed(() => (this.mouseX() - window.innerWidth / 2) * 0.015);
+  titleY = computed(() => (this.mouseY() - window.innerHeight / 2) * 0.015);
 
   ngOnInit() {
     const images = [
@@ -246,6 +350,18 @@ export class HeroComponent implements OnInit {
     this.floatingFruits.forEach((fruit) => {
       fruit.translateY = scrollY * fruit.speedMultiplier;
     });
+  }
+
+  getCharTransform(index: number) {
+    const x = this.titleX() * (1 + (index % 3) * 0.2);
+    const y = this.titleY() * (1 + (index % 2) * 0.2);
+    return `translate(${x}px, ${y}px)`;
+  }
+
+  getOutlineTransform() {
+    const x = -50 + this.titleX() * -0.5;
+    const y = -40 + this.titleY() * -0.5;
+    return `translate(${x}%, ${y}%)`;
   }
 
   scrollToProducts() {

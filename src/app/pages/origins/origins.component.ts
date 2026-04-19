@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LanguageService } from '../../core/services/language.service';
 import { Store } from '@ngrx/store';
 import { OriginCardComponent } from '../../shared/components/origin-card/origin-card.component';
 import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
@@ -35,11 +36,10 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
       <div class="container py-5">
         <div class="row mb-5">
           <div class="col-12 text-center header-container">
-            <span class="eyebrow">OUR NETWORK</span>
-            <h2 class="display-4 font-playfair fw-bold text-white mb-3">Global Origins</h2>
-            <p class="text-white-50 mx-auto" style="max-width: 600px;">
-              We source only from the world's most renowned agricultural regions, ensuring peak
-              freshness and unparalleled taste from root to table.
+            <span class="eyebrow">{{ lang.translate('origins.eyebrow') }}</span>
+            <h2 class="display-4 font-playfair fw-bold theme-text mb-3">{{ lang.translate('origins.title') }}</h2>
+            <p class="theme-text-muted mx-auto" style="max-width: 600px;">
+              {{ lang.translate('origins.subtitle') }}
             </p>
           </div>
         </div>
@@ -58,8 +58,9 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
         font-family: var(--font-display);
       }
       .origins-section {
-        background-color: var(--color-dark);
+        background-color: var(--bg-primary);
         position: relative;
+        transition: background-color 0.5s ease;
       }
       .eyebrow {
         color: var(--color-primary);
@@ -70,8 +71,11 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
         margin-bottom: 1rem;
         display: inline-block;
       }
-      .text-white-50 {
-        color: rgba(255, 255, 255, 0.6);
+      .theme-text {
+        color: var(--text-primary);
+      }
+      .theme-text-muted {
+        color: var(--text-secondary);
         font-size: 1.1rem;
       }
     `,
@@ -79,6 +83,7 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
 })
 export class OriginsComponent implements OnInit {
   private store = inject(Store);
+  lang = inject(LanguageService);
   origins$ = this.store.select(selectAllOrigins);
 
   ngOnInit() {

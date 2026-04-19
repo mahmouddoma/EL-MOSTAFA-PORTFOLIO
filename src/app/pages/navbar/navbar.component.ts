@@ -1,6 +1,8 @@
-import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AnimationService } from '../../core/services/animation.service';
+import { ThemeService } from '../../core/services/theme.service';
+import { LanguageService } from '../../core/services/language.service';
 
 @Component({
   selector: 'app-navbar',
@@ -20,32 +22,70 @@ import { AnimationService } from '../../core/services/animation.service';
     <nav [class.scrolled]="isScrolled" [class.menu-open]="isMenuOpen()">
       <div class="container nav-content">
         <a class="brand" href="#" (click)="scrollToTop($event)">
-          <img src="assets/logo.png" alt="EL MOSTAFA" class="logo-img" />
+          <div class="logo-wrapper">
+            <img src="assets/logo.png" alt="EL MOSTAFA" class="logo-img" />
+            <div class="logo-shine"></div>
+          </div>
         </a>
 
-        <!-- Desktop Links -->
-        <div class="links d-none d-md-flex">
-          <a href="#about" (click)="scrollTo('about', $event)">About</a>
-          <a href="#products" (click)="scrollTo('products', $event)">Products</a>
-          <a href="#origins" (click)="scrollTo('origins', $event)">Origins</a>
-          <a href="#contact" (click)="scrollTo('contact', $event)">Contact</a>
+        <!-- Desktop Navigation -->
+        <div class="d-none d-lg-flex align-items-center gap-4">
+          <div class="links">
+            <a href="#about" (click)="scrollTo('about', $event)">{{ lang.translate('nav.about') }}</a>
+            <a href="#products" (click)="scrollTo('products', $event)">{{ lang.translate('nav.products') }}</a>
+            <a href="#origins" (click)="scrollTo('origins', $event)">{{ lang.translate('nav.origins') }}</a>
+            <a href="#contact" (click)="scrollTo('contact', $event)">{{ lang.translate('nav.contact') }}</a>
+          </div>
+
+          <div class="v-divider"></div>
+
+          <!-- Toggles -->
+          <div class="toggle-group">
+            <button class="icon-btn" (click)="theme.toggleTheme()" [title]="theme.isDarkMode() ? 'Light Mode' : 'Dark Mode'">
+              <span class="btn-icon" [class.rotate]="theme.isDarkMode()">
+                @if (theme.isDarkMode()) {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                } @else {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                }
+              </span>
+            </button>
+
+            <button class="lang-btn" (click)="lang.toggleLanguage()">
+              <span class="lang-code">{{ lang.currentLang() === 'en' ? 'AR' : 'EN' }}</span>
+            </button>
+          </div>
         </div>
 
-        <!-- Mobile Toggle -->
-        <button class="menu-toggle d-md-none" (click)="toggleMenu()" [class.active]="isMenuOpen()">
-          <span class="bar bar-1"></span>
-          <span class="bar bar-2"></span>
-          <span class="bar bar-3"></span>
-        </button>
+        <!-- Mobile Controls -->
+        <div class="d-flex d-lg-none align-items-center gap-2">
+           <button class="icon-btn" (click)="theme.toggleTheme()">
+              <span class="btn-icon">
+                 @if (theme.isDarkMode()) {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                } @else {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                }
+              </span>
+           </button>
+           <button class="lang-btn" (click)="lang.toggleLanguage()">
+              <span class="lang-code">{{ lang.currentLang() === 'en' ? 'AR' : 'EN' }}</span>
+            </button>
+           <button class="menu-toggle" (click)="toggleMenu()" [class.active]="isMenuOpen()">
+              <span class="bar bar-1"></span>
+              <span class="bar bar-2"></span>
+              <span class="bar bar-3"></span>
+            </button>
+        </div>
       </div>
 
       <!-- Mobile Overlay Menu -->
       <div class="mobile-overlay" [class.show]="isMenuOpen()">
         <div class="overlay-links">
-          <a href="#about" (click)="mobileNavigate('about', $event)">About</a>
-          <a href="#products" (click)="mobileNavigate('products', $event)">Products</a>
-          <a href="#origins" (click)="mobileNavigate('origins', $event)">Origins</a>
-          <a href="#contact" (click)="mobileNavigate('contact', $event)">Contact</a>
+          <a href="#about" (click)="mobileNavigate('about', $event)">{{ lang.translate('nav.about') }}</a>
+          <a href="#products" (click)="mobileNavigate('products', $event)">{{ lang.translate('nav.products') }}</a>
+          <a href="#origins" (click)="mobileNavigate('origins', $event)">{{ lang.translate('nav.origins') }}</a>
+          <a href="#contact" (click)="mobileNavigate('contact', $event)">{{ lang.translate('nav.contact') }}</a>
         </div>
       </div>
     </nav>
@@ -64,10 +104,10 @@ import { AnimationService } from '../../core/services/animation.service';
       }
       nav.scrolled {
         padding: 0.8rem 0;
-        background: rgba(10, 10, 10, 0.7);
+        background: var(--bg-surface);
         backdrop-filter: blur(20px);
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        border-bottom: 1px solid var(--border-color);
       }
 
       .nav-content {
@@ -84,29 +124,111 @@ import { AnimationService } from '../../core/services/animation.service';
         text-decoration: none;
       }
 
+      .logo-wrapper {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+      }
+
       .logo-img {
-        height: 50px;
+        height: 70px;
         width: auto;
         transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         filter: drop-shadow(0 0 8px rgba(245, 124, 0, 0.2));
+        animation: float 4s ease-in-out infinite;
+      }
+
+      .logo-shine {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        transition: none;
+        animation: shine 5s infinite;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+      }
+
+      @keyframes shine {
+        0% { left: -100%; }
+        20% { left: 100%; }
+        100% { left: 100%; }
       }
 
       .brand:hover .logo-img {
-        transform: scale(1.05);
-        filter: drop-shadow(0 0 15px rgba(245, 124, 0, 0.4)) brightness(1.1);
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 20px rgba(245, 124, 0, 0.5)) brightness(1.1);
       }
 
       @media (max-width: 768px) {
         .logo-img {
-          height: 40px;
+          height: 50px;
         }
       }
 
+      .v-divider {
+        width: 1px;
+        height: 24px;
+        background: var(--border-color);
+      }
+
+      .toggle-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--bg-surface);
+        padding: 0.4rem;
+        border-radius: 100px;
+        border: 1px solid var(--border-color);
+      }
+
+      .icon-btn, .lang-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-primary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        padding: 0.5rem;
+        border-radius: 50%;
+      }
+
+      .icon-btn:hover, .lang-btn:hover {
+        background: var(--border-color);
+        transform: translateY(-2px);
+      }
+
+      .btn-icon svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .lang-code {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        min-width: 24px;
+      }
+
       .links {
+        display: flex;
+        align-items: center;
         gap: 2.5rem;
       }
       .links a {
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-secondary);
         text-decoration: none;
         font-size: 0.85rem;
         font-weight: 600;
@@ -116,7 +238,7 @@ import { AnimationService } from '../../core/services/animation.service';
         transition: color 0.3s ease;
       }
       .links a:hover {
-        color: #fff;
+        color: var(--color-primary);
       }
       .links a::after {
         content: '';
@@ -146,7 +268,7 @@ import { AnimationService } from '../../core/services/animation.service';
       .bar {
         width: 25px;
         height: 2px;
-        background-color: #fff;
+        background-color: var(--text-primary);
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         border-radius: 2px;
       }
@@ -168,7 +290,7 @@ import { AnimationService } from '../../core/services/animation.service';
         left: 0;
         width: 100%;
         height: 100vh;
-        background: rgba(10, 10, 12, 0.98);
+        background: var(--bg-primary);
         backdrop-filter: blur(30px);
         z-index: 1001;
         display: flex;
@@ -191,7 +313,7 @@ import { AnimationService } from '../../core/services/animation.service';
         gap: 2.5rem;
       }
       .overlay-links a {
-        color: #fff;
+        color: var(--text-primary);
         text-decoration: none;
         font-size: 2rem;
         font-family: var(--font-display);
@@ -259,6 +381,8 @@ export class NavbarComponent {
   isScrolled = false;
   isMenuOpen = signal(false);
   private animationService = inject(AnimationService);
+  theme = inject(ThemeService);
+  lang = inject(LanguageService);
 
   mouseX = () => this.animationService.mousePosition().x;
   mouseY = () => this.animationService.mousePosition().y;

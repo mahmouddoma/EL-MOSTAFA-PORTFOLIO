@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { LanguageService } from '../../core/services/language.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -53,10 +54,12 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
       <div class="container py-5">
         <div class="d-flex justify-content-between align-items-end mb-5 flex-wrap gap-4">
           <div>
-            <span class="eyebrow">EL MOSTAFA COLLECTION</span>
-            <h2 class="display-3 font-playfair fw-bold mb-2 text-white">Our Harvest</h2>
-            <p class="text-white mb-0" style="max-width:500px">
-              Explore our highly curated selection of the finest imported fruits globally.
+            <span class="eyebrow">{{ lang.translate('products.eyebrow') }}</span>
+            <h2 class="display-3 font-playfair fw-bold mb-2 theme-text">
+              {{ lang.translate('products.title') }}
+            </h2>
+            <p class="theme-text mb-0" style="max-width:500px">
+              {{ lang.translate('products.subtitle') }}
             </p>
           </div>
 
@@ -66,7 +69,7 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
               [ngModel]="activeFilter$ | async"
               (ngModelChange)="onFilterChange($event)"
             >
-              <option [ngValue]="null">🌍 All Origins</option>
+              <option [ngValue]="null">{{ lang.translate('products.allOrigins') }}</option>
               <option *ngFor="let origin of origins$ | async" [ngValue]="origin.country">
                 {{ origin.flag }} {{ origin.country }}
               </option>
@@ -94,10 +97,11 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
   styles: [
     `
       .products-section {
-        background-color: var(--color-dark);
+        background-color: var(--bg-primary);
         position: relative;
         overflow: hidden;
         min-height: 100vh;
+        transition: background-color 0.5s ease;
       }
       .eyebrow {
         color: var(--color-primary);
@@ -111,33 +115,33 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
       .font-playfair {
         font-family: var(--font-display);
       }
-      .text-white {
-        color: #fff;
+      .theme-text {
+        color: var(--text-primary);
       }
-      .text-white-50 {
-        color: rgba(255, 255, 255, 0.6);
+      .theme-text-muted {
+        color: var(--text-secondary);
       }
 
       .glass-dropdown {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #fff;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
         backdrop-filter: blur(10px);
         border-radius: 50px;
         padding: 0.75rem 2.5rem 0.75rem 1.5rem;
         font-weight: 600;
         cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       }
       .glass-dropdown:focus {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--bg-surface);
         border-color: var(--color-primary);
         box-shadow: 0 0 0 0.25rem rgba(245, 124, 0, 0.25);
-        color: #fff;
+        color: var(--text-primary);
       }
       .glass-dropdown option {
-        background-color: var(--color-dark);
-        color: #fff;
+        background-color: var(--bg-surface);
+        color: var(--text-primary);
       }
 
       .staggered-grid {
@@ -168,6 +172,7 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
 })
 export class ProductsComponent implements OnInit {
   private store = inject(Store);
+  lang = inject(LanguageService);
 
   products$ = this.store.select(selectFilteredProducts);
   activeFilter$ = this.store.select(selectActiveFilter);

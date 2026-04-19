@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-why-us',
@@ -8,11 +10,12 @@ import { Component } from '@angular/core';
       <div class="container py-5">
         <div class="row text-center mb-5">
           <div class="col-12">
-            <span class="eyebrow">OUR COMMITMENT</span>
-            <h2 class="display-4 text-white font-playfair fw-bold mb-3">Why El Mostafa</h2>
-            <p class="text-white-50 mx-auto" style="max-width: 600px;">
-              Excellence in every bite. Quality in every drop. We go beyond simple importation to
-              deliver an unmatched standard of freshness and taste.
+            <span class="eyebrow">{{ lang.translate('whyUs.eyebrow') }}</span>
+            <h2 class="display-4 theme-text font-playfair fw-bold mb-3">
+              {{ lang.translate('whyUs.title') }}
+            </h2>
+            <p class="theme-text-muted mx-auto" style="max-width: 600px;">
+              {{ lang.translate('whyUs.subtitle') }}
             </p>
           </div>
         </div>
@@ -21,10 +24,9 @@ import { Component } from '@angular/core';
             <div class="glass-pillar">
               <div class="bg-number font-playfair">1</div>
               <div class="pillar-content">
-                <h3 class="font-playfair">Global Network</h3>
+                <h3 class="font-playfair">{{ lang.translate('whyUs.pillars.0.title') }}</h3>
                 <p>
-                  We source directly from premium farms across Italy, Greece, Kenya, and beyond to
-                  ensure peak freshness and variety.
+                  {{ lang.translate('whyUs.pillars.0.desc') }}
                 </p>
               </div>
             </div>
@@ -33,10 +35,9 @@ import { Component } from '@angular/core';
             <div class="glass-pillar" style="transition-delay: 0.1s">
               <div class="bg-number font-playfair">2</div>
               <div class="pillar-content">
-                <h3 class="font-playfair">Temperature Controlled</h3>
+                <h3 class="font-playfair">{{ lang.translate('whyUs.pillars.1.title') }}</h3>
                 <p>
-                  State-of-the-art cold chain logistics guarantee our fruits arrive in Cairo exactly
-                  as pristine as nature intended.
+                  {{ lang.translate('whyUs.pillars.1.desc') }}
                 </p>
               </div>
             </div>
@@ -45,10 +46,9 @@ import { Component } from '@angular/core';
             <div class="glass-pillar" style="transition-delay: 0.2s">
               <div class="bg-number font-playfair">3</div>
               <div class="pillar-content">
-                <h3 class="font-playfair">Unmatched Quality</h3>
+                <h3 class="font-playfair">{{ lang.translate('whyUs.pillars.2.title') }}</h3>
                 <p>
-                  Every single piece is hand-selected and quality-inspected to meet our rigorously
-                  high standards before it reaches you.
+                  {{ lang.translate('whyUs.pillars.2.desc') }}
                 </p>
               </div>
             </div>
@@ -60,11 +60,12 @@ import { Component } from '@angular/core';
   styles: [
     `
       .why-us {
-        background-color: var(--color-dark);
+        background-color: var(--bg-primary);
         position: relative;
+        transition: background-color 0.5s ease;
       }
       .bg-dark {
-        background-color: var(--color-dark);
+        background-color: var(--bg-primary);
       }
       .eyebrow {
         color: var(--color-primary);
@@ -75,11 +76,11 @@ import { Component } from '@angular/core';
         margin-bottom: 1rem;
         display: inline-block;
       }
-      .text-white {
-        color: #fff;
+      .theme-text {
+        color: var(--text-primary);
       }
-      .text-white-50 {
-        color: rgba(255, 255, 255, 0.6);
+      .theme-text-muted {
+        color: var(--text-secondary);
         font-size: 1.1rem;
         line-height: 1.6;
       }
@@ -90,15 +91,11 @@ import { Component } from '@angular/core';
       .glass-pillar {
         position: relative;
         padding: 2.5rem 2rem;
-        background: radial-gradient(
-          circle at top right,
-          rgba(40, 40, 45, 1) 0%,
-          rgba(18, 18, 20, 1) 100%
-        );
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
         border-radius: 16px;
         height: 100%;
-        color: #fff;
+        color: var(--text-primary);
         overflow: hidden;
         transition:
           transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
@@ -158,7 +155,7 @@ import { Component } from '@angular/core';
       }
 
       .glass-pillar p {
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-secondary);
         line-height: 1.7;
         font-size: 0.95rem;
         margin-bottom: 0;
@@ -179,4 +176,6 @@ import { Component } from '@angular/core';
     `,
   ],
 })
-export class WhyUsComponent {}
+export class WhyUsComponent {
+  lang = inject(LanguageService);
+}

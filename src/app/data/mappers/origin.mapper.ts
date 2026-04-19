@@ -5,7 +5,8 @@ export class OriginMapper {
     return {
       flag: json.flag,
       country: json.country,
-      products: json.products as string[]
+      country_ar: json.country_ar,
+      products: json.products as string[],
     };
   }
 }
