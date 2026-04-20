@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { AnimationService } from '../../core/services/animation.service';
 import { LanguageService } from '../../core/services/language.service';
+import { MockSiteContentService } from '../../core/services/mock-site-content.service';
 
 interface FloatingFruit {
   imgSrc: string;
@@ -43,6 +44,10 @@ interface FloatingFruit {
           <img
             [src]="fruit.imgSrc"
             class="real-fruit"
+            [attr.data-edit-id]="'hero.fruit.' + i"
+            [attr.data-edit-label]="'Hero Floating Fruit ' + (i + 1)"
+            data-edit-type="image"
+            data-edit-scope="global"
             alt=""
             [attr.loading]="i < 2 ? 'eager' : 'lazy'"
             decoding="async"
@@ -54,7 +59,9 @@ interface FloatingFruit {
 
       <div class="container hero-content">
         <div class="hero-text-wrapper stagger-item">
-          <span class="eyebrow glass-panel">{{ lang.translate('hero.eyebrow') }}</span>
+          <span class="eyebrow glass-panel" data-edit-id="hero.eyebrow" data-edit-label="Hero Eyebrow">
+            {{ content.getHeroValue('eyebrow', lang.currentLang()) }}
+          </span>
         </div>
         <div class="hero-title-wrapper stagger-item">
           <!-- Outline Title (Background Parallax) -->
@@ -64,30 +71,30 @@ interface FloatingFruit {
               class="char-outline"
               [style.transition-delay]="i * 0.05 + 's'"
             >
-              {{ char === ' ' ? '&nbsp;' : char }}
+              {{ char === ' ' ? '\u00A0' : char }}
             </span>
           </div>
 
           <!-- Solid Title (Main) -->
-          <h1 class="hero-title">
+          <h1 class="hero-title" data-edit-id="hero.title" data-edit-label="Hero Title">
             <span
               *ngFor="let char of titleChars(); let i = index"
               class="char-solid"
               [style.transition-delay]="i * 0.05 + 's'"
               [style.transform]="getCharTransform(i)"
             >
-              {{ char === ' ' ? '&nbsp;' : char }}
+              {{ char === ' ' ? '\u00A0' : char }}
             </span>
           </h1>
         </div>
         <div class="hero-subtitle-wrapper stagger-item">
-          <p class="hero-subtitle">
-            {{ lang.translate('hero.subtitle') }}
+          <p class="hero-subtitle" data-edit-id="hero.subtitle" data-edit-label="Hero Subtitle" data-edit-type="textarea">
+            {{ content.getHeroValue('subtitle', lang.currentLang()) }}
           </p>
         </div>
         <div class="hero-cta-wrapper stagger-item">
-          <button class="btn btn-primary cta-button glow-border" (click)="scrollToProducts()">
-            <span style="position:relative; z-index:2">{{ lang.translate('hero.cta') }}</span>
+          <button class="btn btn-primary cta-button glow-border" (click)="scrollToProducts()" data-edit-id="hero.cta" data-edit-label="Hero CTA">
+            <span style="position:relative; z-index:2">{{ content.getHeroValue('cta', lang.currentLang()) }}</span>
           </button>
         </div>
       </div>
@@ -319,12 +326,13 @@ export class HeroComponent implements OnInit {
   floatingFruits: FloatingFruit[] = [];
   private animationService = inject(AnimationService);
   lang = inject(LanguageService);
+  content = inject(MockSiteContentService);
 
   mouseX = () => this.animationService.laggingPosition().x;
   mouseY = () => this.animationService.laggingPosition().y;
 
   titleChars = computed(() => {
-    const title = this.lang.translate('hero.title');
+    const title = this.content.getHeroValue('title', this.lang.currentLang());
     return this.lang.currentLang() === 'ar' ? [title] : title.split('');
   });
 
@@ -376,3 +384,4 @@ export class HeroComponent implements OnInit {
     document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
   }
 }
+

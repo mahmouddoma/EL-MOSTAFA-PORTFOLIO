@@ -48,10 +48,13 @@ interface Particle {
         >
           <h2
             class="display-3 font-playfair font-weight-bold text-gradient"
+            data-edit-id="slice.title"
+            data-edit-label="Slice Title"
+            data-edit-type="html"
             [style.letterSpacing.px]="revealLetterSpacing"
             [innerHTML]="lang.translate('slice.title')"
           ></h2>
-          <p class="theme-text">{{ lang.translate('slice.subtitle') }}</p>
+          <p class="theme-text" data-edit-id="slice.subtitle" data-edit-label="Slice Subtitle" data-edit-type="textarea">{{ lang.translate('slice.subtitle') }}</p>
         </div>
 
         <!-- The Fruit Halves wrapped in tension container -->
@@ -84,6 +87,10 @@ interface Particle {
                 src="assets/real-orange.png"
                 class="fruit-visual"
                 alt="Real Orange Top"
+                data-edit-id="slice.image.top"
+                data-edit-label="Slice Top Image"
+                data-edit-type="image"
+                data-edit-scope="global"
                 loading="lazy"
                 decoding="async"
               />
@@ -104,6 +111,10 @@ interface Particle {
                 src="assets/real-orange.png"
                 class="fruit-visual bottom-visual"
                 alt="Real Orange Bottom"
+                data-edit-id="slice.image.bottom"
+                data-edit-label="Slice Bottom Image"
+                data-edit-type="image"
+                data-edit-scope="global"
                 loading="lazy"
                 decoding="async"
               />

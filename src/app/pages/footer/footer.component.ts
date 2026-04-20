@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 import { LanguageService } from '../../core/services/language.service';
+import { MockSiteContentService } from '../../core/services/mock-site-content.service';
 
 @Component({
   selector: 'app-footer',
@@ -12,9 +13,9 @@ import { LanguageService } from '../../core/services/language.service';
       <div class="container pt-4">
         <div class="row mb-5">
           <div class="col-md-6 mb-4 mb-md-0 text-center text-md-start">
-            <h2 class="brand-glow mb-3">EL MOSTAFA</h2>
+            <h2 class="brand-glow mb-3" data-edit-id="footer.brandText" data-edit-label="Footer Brand" data-edit-scope="global">{{ content.getFooterValue('brandText', lang.currentLang()) }}</h2>
             <p class="text-white-50 mx-auto ms-md-0 me-md-auto" style="max-width: 350px">
-              {{ lang.translate('footer.desc') }}
+              <span data-edit-id="footer.description" data-edit-label="Footer Description" data-edit-type="textarea">{{ content.getFooterValue('description', lang.currentLang()) }}</span>
             </p>
           </div>
           <div class="col-md-6 text-center text-md-end">
@@ -24,15 +25,15 @@ import { LanguageService } from '../../core/services/language.service';
             <ul class="contact-list list-unstyled">
               <li class="mb-2">
                 <strong class="text-white-50 me-2">{{ lang.translate('footer.addressLabel') }}</strong>
-                <span class="contact-value">{{ lang.translate('footer.addressValue') }}</span>
+                <span class="contact-value" data-edit-id="footer.address" data-edit-label="Footer Address">{{ content.getFooterValue('address', lang.currentLang()) }}</span>
               </li>
               <li class="mb-2">
                 <strong class="text-white-50 me-2">{{ lang.translate('footer.emailLabel') }}</strong>
-                <span class="contact-value">contact&#64;elmostafafruits.com</span>
+                <span class="contact-value" data-edit-id="footer.email" data-edit-label="Footer Email" data-edit-scope="global">{{ content.getFooterValue('email', lang.currentLang()) }}</span>
               </li>
               <li class="mb-0">
                 <strong class="text-white-50 me-2">{{ lang.translate('footer.phoneLabel') }}</strong>
-                <span class="contact-value">+20 100 000 0000</span>
+                <span class="contact-value" data-edit-id="footer.phone" data-edit-label="Footer Phone" data-edit-scope="global">{{ content.getFooterValue('phone', lang.currentLang()) }}</span>
               </li>
             </ul>
           </div>
@@ -154,4 +155,5 @@ import { LanguageService } from '../../core/services/language.service';
 export class FooterComponent {
   currentYear = new Date().getFullYear();
   lang = inject(LanguageService);
+  content = inject(MockSiteContentService);
 }

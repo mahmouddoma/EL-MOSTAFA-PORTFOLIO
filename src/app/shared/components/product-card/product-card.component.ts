@@ -28,6 +28,10 @@ import { LanguageService } from '../../../core/services/language.service';
           <img
             [src]="product.imageUrl"
             class="fruit-img levitate"
+            [attr.data-edit-id]="'product.' + product.id + '.image'"
+            [attr.data-edit-label]="product.name + ' Image'"
+            data-edit-type="image"
+            data-edit-scope="global"
             [style.filter]="
               product.imageFilter ? product.imageFilter + ' contrast(1.1)' : 'contrast(1.1)'
             "
@@ -40,19 +44,21 @@ import { LanguageService } from '../../../core/services/language.service';
 
         <!-- Stable Info (Always visible, clean, small) -->
         <div class="meta-section">
-          <div class="category-indicator">{{ product.category }}</div>
-          <h3 class="fruit-title font-playfair">{{ lang.isRtl() ? product.name_ar : product.name }}</h3>
+          <div class="category-indicator" [attr.data-edit-id]="'product.' + product.id + '.category'" [attr.data-edit-label]="product.name + ' Category'">{{ product.category }}</div>
+          <h3 class="fruit-title font-playfair" [attr.data-edit-id]="'product.' + product.id + '.title'" [attr.data-edit-label]="product.name + ' Title'">{{ lang.isRtl() ? product.name_ar : product.name }}</h3>
         </div>
 
         <!-- Hidden Hover Details -->
         <div class="hover-details">
-          <p class="fruit-origin text-white mb-2">
+          <p class="fruit-origin text-white mb-2" [attr.data-edit-id]="'product.' + product.id + '.origin'" [attr.data-edit-label]="product.name + ' Origin'" data-edit-type="textarea">
             <span class="text-primary me-1">➤</span>{{ product.origin.join(', ') }}
           </p>
           <div class="pill-container" *ngIf="product.varieties && product.varieties.length > 0">
             <span
               class="variety-pill"
               *ngFor="let variety of product.varieties; let i = index"
+              [attr.data-edit-id]="'product.' + product.id + '.variety.' + i"
+              [attr.data-edit-label]="product.name + ' Variety ' + (i + 1)"
               [style.transition-delay]="i * 0.05 + 's'"
             >
               {{ variety }}

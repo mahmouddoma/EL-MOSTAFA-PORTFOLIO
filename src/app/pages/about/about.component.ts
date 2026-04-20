@@ -26,11 +26,11 @@ import { LanguageService } from '../../core/services/language.service';
         </div>
 
         <div class="header-content" [style.opacity]="1 - scrollProgress * 5">
-          <span class="eyebrow">{{ lang.translate('hero.story') }}</span>
-          <h2 class="display-3 font-playfair fw-bold theme-text mb-0">
+          <span class="eyebrow" data-edit-id="about.eyebrow" data-edit-label="About Eyebrow">{{ lang.translate('hero.story') }}</span>
+          <h2 class="display-3 font-playfair fw-bold theme-text mb-0" data-edit-id="about.title" data-edit-label="About Title">
             {{ lang.translate('hero.journey') }}
           </h2>
-          <p class="theme-text">{{ lang.translate('hero.scroll') }}</p>
+          <p class="theme-text" data-edit-id="about.subtitle" data-edit-label="About Subtitle">{{ lang.translate('hero.scroll') }}</p>
         </div>
 
         <!-- The Glowing Pipeline -->
@@ -49,6 +49,10 @@ import { LanguageService } from '../../core/services/language.service';
           <img
             src="assets/real-orange.png"
             class="tracker-img"
+            data-edit-id="about.tracker.orange"
+            data-edit-label="About Tracker Orange"
+            data-edit-type="image"
+            data-edit-scope="global"
             [style.filter]="'contrast(1.2)'"
             [style.opacity]="orangeOpacity"
             [style.transform]="
@@ -61,6 +65,10 @@ import { LanguageService } from '../../core/services/language.service';
           <img
             src="assets/real-kiwi.png"
             class="tracker-img"
+            data-edit-id="about.tracker.kiwi"
+            data-edit-label="About Tracker Kiwi"
+            data-edit-type="image"
+            data-edit-scope="global"
             [style.filter]="'contrast(1.2)'"
             [style.opacity]="kiwiOpacity"
             [style.transform]="
@@ -73,6 +81,10 @@ import { LanguageService } from '../../core/services/language.service';
           <img
             src="assets/real-apple.png"
             class="tracker-img"
+            data-edit-id="about.tracker.apple"
+            data-edit-label="About Tracker Apple"
+            data-edit-type="image"
+            data-edit-scope="global"
             [style.filter]="'contrast(1.2)'"
             [style.opacity]="strawberryOpacity"
             [style.transform]="
@@ -92,8 +104,8 @@ import { LanguageService } from '../../core/services/language.service';
         >
           <div class="glass-node">
             <span class="node-number">01</span>
-            <h3 class="font-playfair text-gradient">{{ lang.translate('about.nodes.0.title') }}</h3>
-            <p class="theme-text mb-0">
+            <h3 class="font-playfair text-gradient" data-edit-id="about.node1.title" data-edit-label="About Node 1 Title">{{ lang.translate('about.nodes.0.title') }}</h3>
+            <p class="theme-text mb-0" data-edit-id="about.node1.desc" data-edit-label="About Node 1 Description" data-edit-type="textarea">
               {{ lang.translate('about.nodes.0.desc') }}
             </p>
           </div>
@@ -107,8 +119,8 @@ import { LanguageService } from '../../core/services/language.service';
         >
           <div class="glass-node">
             <span class="node-number">02</span>
-            <h3 class="font-playfair text-gradient">{{ lang.translate('about.nodes.1.title') }}</h3>
-            <p class="theme-text mb-0">
+            <h3 class="font-playfair text-gradient" data-edit-id="about.node2.title" data-edit-label="About Node 2 Title">{{ lang.translate('about.nodes.1.title') }}</h3>
+            <p class="theme-text mb-0" data-edit-id="about.node2.desc" data-edit-label="About Node 2 Description" data-edit-type="textarea">
               {{ lang.translate('about.nodes.1.desc') }}
             </p>
           </div>
@@ -122,8 +134,8 @@ import { LanguageService } from '../../core/services/language.service';
         >
           <div class="glass-node">
             <span class="node-number">03</span>
-            <h3 class="font-playfair text-gradient">{{ lang.translate('about.nodes.2.title') }}</h3>
-            <p class="theme-text mb-0">
+            <h3 class="font-playfair text-gradient" data-edit-id="about.node3.title" data-edit-label="About Node 3 Title">{{ lang.translate('about.nodes.2.title') }}</h3>
+            <p class="theme-text mb-0" data-edit-id="about.node3.desc" data-edit-label="About Node 3 Description" data-edit-type="textarea">
               {{ lang.translate('about.nodes.2.desc') }}
             </p>
           </div>

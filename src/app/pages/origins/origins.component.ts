@@ -36,9 +36,9 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
       <div class="container py-5">
         <div class="row mb-5">
           <div class="col-12 text-center header-container">
-            <span class="eyebrow">{{ lang.translate('origins.eyebrow') }}</span>
-            <h2 class="display-4 font-playfair fw-bold theme-text mb-3">{{ lang.translate('origins.title') }}</h2>
-            <p class="theme-text-muted mx-auto" style="max-width: 600px;">
+            <span class="eyebrow" data-edit-id="origins.eyebrow" data-edit-label="Origins Eyebrow">{{ lang.translate('origins.eyebrow') }}</span>
+            <h2 class="display-4 font-playfair fw-bold theme-text mb-3" data-edit-id="origins.title" data-edit-label="Origins Title">{{ lang.translate('origins.title') }}</h2>
+            <p class="theme-text-muted mx-auto" style="max-width: 600px;" data-edit-id="origins.subtitle" data-edit-label="Origins Subtitle" data-edit-type="textarea">
               {{ lang.translate('origins.subtitle') }}
             </p>
           </div>

@@ -74,15 +74,55 @@ export const routes: Routes = [
       import('./admin/layout/admin-layout.component').then((m) => m.AdminLayoutComponent),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-      { path: 'dashboard', loadComponent: () => import('./admin/pages/dashboard/admin-dashboard.component').then((m) => m.AdminDashboardComponent) },
-      { path: 'products', loadComponent: () => import('./admin/pages/products/admin-products.component').then((m) => m.AdminProductsComponent) },
-      { path: 'site-content', loadComponent: () => import('./admin/pages/site-content/admin-site-content.component').then((m) => m.AdminSiteContentComponent) },
-      { path: 'visual-editor', loadComponent: () => import('./admin/pages/visual-editor/admin-visual-editor.component').then((m) => m.AdminVisualEditorComponent) },
-      { path: 'orders', loadComponent: () => import('./admin/pages/orders/admin-orders.component').then((m) => m.AdminOrdersComponent) },
-      { path: 'payments', loadComponent: () => import('./admin/pages/payments/admin-payments.component').then((m) => m.AdminPaymentsComponent) },
-      { path: 'messages', loadComponent: () => import('./admin/pages/messages/admin-messages.component').then((m) => m.AdminMessagesComponent) }
-    ]
-  }
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./admin/pages/dashboard/admin-dashboard.component').then(
+            (m) => m.AdminDashboardComponent,
+          ),
+      },
+      {
+        path: 'products',
+        loadComponent: () =>
+          import('./admin/pages/products/admin-products.component').then(
+            (m) => m.AdminProductsComponent,
+          ),
+      },
+      {
+        path: 'site-content',
+        loadComponent: () =>
+          import('./admin/pages/site-content/admin-site-content.component').then(
+            (m) => m.AdminSiteContentComponent,
+          ),
+      },
+      {
+        path: 'visual-editor',
+        loadComponent: () =>
+          import('./admin/pages/visual-editor/admin-visual-editor.component').then(
+            (m) => m.AdminVisualEditorComponent,
+          ),
+      },
+      {
+        path: 'orders',
+        loadComponent: () =>
+          import('./admin/pages/orders/admin-orders.component').then((m) => m.AdminOrdersComponent),
+      },
+      {
+        path: 'payments',
+        loadComponent: () =>
+          import('./admin/pages/payments/admin-payments.component').then(
+            (m) => m.AdminPaymentsComponent,
+          ),
+      },
+      {
+        path: 'messages',
+        loadComponent: () =>
+          import('./admin/pages/messages/admin-messages.component').then(
+            (m) => m.AdminMessagesComponent,
+          ),
+      },
+    ],
+  },
 ];
 ```
 
@@ -223,7 +263,7 @@ const sidebarItems = [
   { label: 'Visual Editor', route: '/admin/visual-editor', icon: 'visibility' },
   { label: 'Orders', route: '/admin/orders', icon: 'shopping_cart' },
   { label: 'Payments', route: '/admin/payments', icon: 'payments' },
-  { label: 'Messages', route: '/admin/messages', icon: 'mail' }
+  { label: 'Messages', route: '/admin/messages', icon: 'mail' },
 ];
 ```
 
@@ -366,26 +406,32 @@ API:
 ### من iframe إلى dashboard
 
 ```ts
-window.parent.postMessage({
-  type: 'editor-node-selected',
-  payload: {
-    nodeId: 'hero.title',
-    value: 'EL MOSTAFA',
-    nodeType: 'text'
-  }
-}, '*');
+window.parent.postMessage(
+  {
+    type: 'editor-node-selected',
+    payload: {
+      nodeId: 'hero.title',
+      value: 'EL MOSTAFA',
+      nodeType: 'text',
+    },
+  },
+  '*',
+);
 ```
 
 ### من dashboard إلى iframe
 
 ```ts
-iframe.contentWindow?.postMessage({
-  type: 'editor-node-update',
-  payload: {
-    nodeId: 'hero.title',
-    value: 'New Title'
-  }
-}, '*');
+iframe.contentWindow?.postMessage(
+  {
+    type: 'editor-node-update',
+    payload: {
+      nodeId: 'hero.title',
+      value: 'New Title',
+    },
+  },
+  '*',
+);
 ```
 
 ## 10.5 أنواع العناصر القابلة للتعديل
@@ -503,17 +549,17 @@ iframe.contentWindow?.postMessage({
 
 ## 16. Mapping بين sections الحالية و keys المقترحة
 
-| Current Component | Page Key | Section Key |
-|---|---|---|
-| `NavbarComponent` | `home` | `navbar` |
-| `HeroComponent` | `home` | `hero` |
-| `FruitSliceComponent` | `home` | `fruit-slice` |
-| `MarqueeComponent` | `home` | `marquee` |
-| `AboutComponent` | `home` | `about` |
-| `ProductsComponent` header | `home` | `products-header` |
-| `OriginsComponent` header | `home` | `origins-header` |
-| `WhyUsComponent` | `home` | `why-us` |
-| `FooterComponent` | `home` | `footer` |
+| Current Component          | Page Key | Section Key       |
+| -------------------------- | -------- | ----------------- |
+| `NavbarComponent`          | `home`   | `navbar`          |
+| `HeroComponent`            | `home`   | `hero`            |
+| `FruitSliceComponent`      | `home`   | `fruit-slice`     |
+| `MarqueeComponent`         | `home`   | `marquee`         |
+| `AboutComponent`           | `home`   | `about`           |
+| `ProductsComponent` header | `home`   | `products-header` |
+| `OriginsComponent` header  | `home`   | `origins-header`  |
+| `WhyUsComponent`           | `home`   | `why-us`          |
+| `FooterComponent`          | `home`   | `footer`          |
 
 ## 17. الأولويات التنفيذية
 

@@ -9,11 +9,11 @@ import { LanguageService } from '../../../core/services/language.service';
   template: `
     <div class="marquee-container">
       <div class="marquee-content">
-        <span class="marquee-item" *ngFor="let item of displayItems; let i = index">
+        <span class="marquee-item" *ngFor="let item of displayItems; let i = index" [attr.data-edit-id]="'marquee.item.' + i" [attr.data-edit-label]="'Marquee Item ' + (i + 1)">
           {{ item }}
         </span>
         <!-- Duplicate for seamless loop -->
-        <span class="marquee-item" *ngFor="let item of displayItems; let i = index">
+        <span class="marquee-item" *ngFor="let item of displayItems; let i = index" [attr.data-edit-id]="'marquee.item.' + i" [attr.data-edit-label]="'Marquee Item ' + (i + 1)">
           {{ item }}
         </span>
       </div>

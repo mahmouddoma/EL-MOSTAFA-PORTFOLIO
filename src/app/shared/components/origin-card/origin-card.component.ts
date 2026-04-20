@@ -10,7 +10,7 @@ import { LanguageService } from '../../../core/services/language.service';
   template: `
     <div class="origin-card premium-node">
       <!-- Ambient Watermark Flag (works perfectly if it's text or emoji) -->
-      <div class="watermark-flag">{{ origin.flag }}</div>
+      <div class="watermark-flag" [attr.data-edit-id]="'origin.' + origin.country + '.flag'" [attr.data-edit-label]="origin.country + ' Flag'" data-edit-scope="global">{{ origin.flag }}</div>
 
       <div class="content">
         <div class="header-line">
@@ -18,13 +18,15 @@ import { LanguageService } from '../../../core/services/language.service';
             <span class="dot"></span>
             <span class="ring"></span>
           </div>
-          <h3 class="font-playfair">{{ lang.isRtl() ? origin.country_ar : origin.country }}</h3>
+          <h3 class="font-playfair" [attr.data-edit-id]="'origin.' + origin.country + '.title'" [attr.data-edit-label]="origin.country + ' Title'">{{ lang.isRtl() ? origin.country_ar : origin.country }}</h3>
         </div>
 
         <div class="products-list">
           <span
             class="product-badge"
             *ngFor="let prod of origin.products; let i = index"
+            [attr.data-edit-id]="'origin.' + origin.country + '.product.' + i"
+            [attr.data-edit-label]="origin.country + ' Product ' + (i + 1)"
             [style.transition-delay]="i * 0.05 + 's'"
           >
             {{ prod }}

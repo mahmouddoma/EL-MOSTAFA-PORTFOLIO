@@ -10,11 +10,11 @@ import { LanguageService } from '../../../core/services/language.service';
       <div class="container py-5">
         <div class="row text-center mb-5">
           <div class="col-12">
-            <span class="eyebrow">{{ lang.translate('whyUs.eyebrow') }}</span>
-            <h2 class="display-4 theme-text font-playfair fw-bold mb-3">
+            <span class="eyebrow" data-edit-id="whyUs.eyebrow" data-edit-label="Why Us Eyebrow">{{ lang.translate('whyUs.eyebrow') }}</span>
+            <h2 class="display-4 theme-text font-playfair fw-bold mb-3" data-edit-id="whyUs.title" data-edit-label="Why Us Title">
               {{ lang.translate('whyUs.title') }}
             </h2>
-            <p class="theme-text-muted mx-auto" style="max-width: 600px;">
+            <p class="theme-text-muted mx-auto" style="max-width: 600px;" data-edit-id="whyUs.subtitle" data-edit-label="Why Us Subtitle" data-edit-type="textarea">
               {{ lang.translate('whyUs.subtitle') }}
             </p>
           </div>
@@ -24,8 +24,8 @@ import { LanguageService } from '../../../core/services/language.service';
             <div class="glass-pillar">
               <div class="bg-number font-playfair">1</div>
               <div class="pillar-content">
-                <h3 class="font-playfair">{{ lang.translate('whyUs.pillars.0.title') }}</h3>
-                <p>
+                <h3 class="font-playfair" data-edit-id="whyUs.pillar1.title" data-edit-label="Why Us Pillar 1 Title">{{ lang.translate('whyUs.pillars.0.title') }}</h3>
+                <p data-edit-id="whyUs.pillar1.desc" data-edit-label="Why Us Pillar 1 Description" data-edit-type="textarea">
                   {{ lang.translate('whyUs.pillars.0.desc') }}
                 </p>
               </div>
@@ -35,8 +35,8 @@ import { LanguageService } from '../../../core/services/language.service';
             <div class="glass-pillar" style="transition-delay: 0.1s">
               <div class="bg-number font-playfair">2</div>
               <div class="pillar-content">
-                <h3 class="font-playfair">{{ lang.translate('whyUs.pillars.1.title') }}</h3>
-                <p>
+                <h3 class="font-playfair" data-edit-id="whyUs.pillar2.title" data-edit-label="Why Us Pillar 2 Title">{{ lang.translate('whyUs.pillars.1.title') }}</h3>
+                <p data-edit-id="whyUs.pillar2.desc" data-edit-label="Why Us Pillar 2 Description" data-edit-type="textarea">
                   {{ lang.translate('whyUs.pillars.1.desc') }}
                 </p>
               </div>
@@ -46,8 +46,8 @@ import { LanguageService } from '../../../core/services/language.service';
             <div class="glass-pillar" style="transition-delay: 0.2s">
               <div class="bg-number font-playfair">3</div>
               <div class="pillar-content">
-                <h3 class="font-playfair">{{ lang.translate('whyUs.pillars.2.title') }}</h3>
-                <p>
+                <h3 class="font-playfair" data-edit-id="whyUs.pillar3.title" data-edit-label="Why Us Pillar 3 Title">{{ lang.translate('whyUs.pillars.2.title') }}</h3>
+                <p data-edit-id="whyUs.pillar3.desc" data-edit-label="Why Us Pillar 3 Description" data-edit-type="textarea">
                   {{ lang.translate('whyUs.pillars.2.desc') }}
                 </p>
               </div>

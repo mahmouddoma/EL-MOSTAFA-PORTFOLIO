@@ -1,445 +1,219 @@
-# Backend Admin Dashboard Spec (.NET)
+# Admin Backend Spec
 
 ## 1. الهدف
 
-هذا الملف يشرح المطلوب من الباك إند لبناء Dashboard كاملة فوق مشروع `EL-MOSTAFA-PORTFOLIO` الحالي.
+هذا الملف هو الـ source of truth المطلوب للباك اند بعد إضافة الـ admin dashboard داخل مشروع `EL-MOSTAFA-PORTFOLIO`.
 
-الهدف:
+الهدف من الباك اند:
 
-- تسجيل دخول للإدمن بالإيميل + `verification code`.
-- Dashboard فيها الأقسام:
-  - `Dashboard`
-  - `Products`
-  - `Site Content`
-  - `Visual Editor`
-  - `Orders`
-  - `Payments`
-  - `Messages`
-  - `Logout`
-- دعم `live edit mode` بحيث الإدمن يفتح نسخة من الموقع نفسه، يعدل العناصر مباشرة، ثم يعمل حفظ فتنعكس على الموقع الأساسي.
+- استبدال كل الـ mock services الحالية.
+- نقل البيانات من `assets/data.json` و `LanguageService` و `MockSiteContentService` إلى API + database.
+- دعم تسجيل دخول الأدمن عبر email + verification code.
+- دعم `Dashboard`, `Products`, `Site Content`, `Visual Editor`, `Orders`, `Payments`, `Messages`.
+- دعم `draft/published` workflow للمحتوى.
+- دعم live preview في الـ visual editor اعتمادا على `data-edit-id`.
 
-## 2. ملاحظات على المشروع الحالي
+---
 
-الموقع الحالي Angular وبياناته الأساسية حالياً جاية من:
+## 2. مراجعة المشروع الحالي
+
+### 2.1 الموجود فعلا في الفرونت
+
+- Angular app فيها public site + admin routes.
+- صفحات الأدمن موجودة:
+  - `/admin/login`
+  - `/admin/dashboard`
+  - `/admin/products`
+  - `/admin/site-content`
+  - `/admin/visual-editor`
+  - `/admin/orders`
+  - `/admin/payments`
+  - `/admin/messages`
+- الـ public site فيه `data-edit-id` markers كثيرة بالفعل، وبالتالي الباك اند لازم يتعامل مع content model حقيقي وليس نصوص ثابتة فقط.
+
+### 2.2 الوضع الحالي قبل ربط الباك اند
+
+- admin auth ما زال mock.
+- dashboard data ما زالت mock.
+- site content حاليا يكتب في `localStorage`.
+- visual editor حاليا يقرأ ويكتب من `localStorage` + DOM overrides.
+- products/origins ما زالت تقرأ من `public/assets/data.json`.
+
+### 2.3 ملاحظات مهمة من المراجعة
+
+1. الـ spec القديم لا يطابق الـ node keys الحالية بالكامل.
+2. الـ UI الحالي يستخدم فعليا:
+   - `slice.*` وليس `fruit-slice.*`
+   - `products.*` وليس `products-header.*`
+   - `origins.*` وليس `origins-header.*`
+3. الـ public site عنده مصدر بيانات مزدوج حاليا:
+   - `LanguageService` للنصوص
+   - `MockSiteContentService` لبعض النصوص
+   - `data.json` للمنتجات والمصادر
+   - `MockVisualEditorService` للـ live overrides
+4. الـ origin editable nodes حاليا مبنية على اسم الدولة داخل الـ DOM:
+   - مثال: `origin.Italy.title`
+   - هذا غير مستقر للباك اند
+   - التوصية النهائية: تحويلها إلى stable key مثل `origin.{originId}.title` أو `origin.{originSlug}.title`
+
+---
+
+## 3. المصدر النهائي للبيانات
+
+بعد تنفيذ الباك اند، يجب أن تصبح مصادر البيانات كالتالي:
+
+- `products` و `origins` من database tables مباشرة.
+- محتوى الصفحة العامة من CMS tables.
+- visual editor styles / asset overrides من CMS editor tables.
+- dashboard summary من queries حقيقية على الجداول.
+- public site يقرأ فقط من public endpoints.
+
+المصادر التالية يجب إزالتها تدريجيا من الـ runtime:
 
 - `public/assets/data.json`
-  - `products`
-  - `origins`
-- `src/app/core/services/language.service.ts`
-  - نصوص `navbar`, `hero`, `about`, `products`, `origins`, `whyUs`, `footer`, `marquee`, `slice`
-
-هذا يعني أن الباك إند الجديد لازم يخرج المحتوى من الملفات الثابتة إلى قاعدة بيانات و API.
-
-## 3. Stack مقترح
-
-- `ASP.NET Core Web API`
-- `EF Core`
-- `SQL Server`
-- `JWT access token + refresh token`
-- `SMTP / email provider` لإرسال كود التحقق
-- تخزين صور في:
-  - Local disk في البداية، أو
-  - Azure Blob / S3 لاحقاً
-
-## 4. النمط المعماري المطلوب
-
-يفضل فصل البيانات إلى مستويين:
-
-1. `Published`
-   - هذا الذي يقرأ منه الموقع العام.
-2. `Draft`
-   - هذا الذي يعدل عليه الإدمن داخل `Site Content` و `Visual Editor`.
-
-عند الضغط على `Save` يوجد خياران:
-
-- إما الحفظ في `draft` فقط.
-- أو الحفظ ثم `publish` فوراً ليظهر التعديل في الموقع الأساسي.
-
-لو المطلوب أن زر الحفظ يغير الموقع الأساسي فوراً، اجعل الـ frontend ينفذ:
-
-1. `save draft`
-2. ثم `publish`
-
-## 5. الجداول المطلوبة
-
-## 5.1 AdminUsers
-
-| Column | Type | Notes |
-|---|---|---|
-| `Id` | `uniqueidentifier` | PK |
-| `Email` | `nvarchar(256)` | unique |
-| `FullName` | `nvarchar(150)` | |
-| `IsActive` | `bit` | |
-| `Role` | `nvarchar(50)` | `SuperAdmin`, `Editor` |
-| `LastLoginAtUtc` | `datetime2` | nullable |
-| `CreatedAtUtc` | `datetime2` | |
-| `UpdatedAtUtc` | `datetime2` | |
-
-## 5.2 AdminVerificationCodes
-
-| Column | Type | Notes |
-|---|---|---|
-| `Id` | `uniqueidentifier` | PK |
-| `AdminUserId` | `uniqueidentifier` | FK |
-| `CodeHash` | `nvarchar(500)` | لا نخزن الكود raw |
-| `ExpiresAtUtc` | `datetime2` | صلاحية 5 إلى 10 دقائق |
-| `ConsumedAtUtc` | `datetime2` | nullable |
-| `AttemptsCount` | `int` | |
-| `IpAddress` | `nvarchar(100)` | nullable |
-| `CreatedAtUtc` | `datetime2` | |
-
-## 5.3 AdminRefreshTokens
-
-| Column | Type | Notes |
-|---|---|---|
-| `Id` | `uniqueidentifier` | PK |
-| `AdminUserId` | `uniqueidentifier` | FK |
-| `TokenHash` | `nvarchar(500)` | |
-| `ExpiresAtUtc` | `datetime2` | |
-| `RevokedAtUtc` | `datetime2` | nullable |
-| `CreatedAtUtc` | `datetime2` | |
-
-## 5.4 MediaAssets
-
-| Column | Type | Notes |
-|---|---|---|
-| `Id` | `uniqueidentifier` | PK |
-| `FileName` | `nvarchar(255)` | |
-| `OriginalFileName` | `nvarchar(255)` | |
-| `ContentType` | `nvarchar(100)` | |
-| `SizeInBytes` | `bigint` | |
-| `Url` | `nvarchar(1000)` | |
-| `StorageProvider` | `nvarchar(50)` | `local`, `blob` |
-| `Width` | `int` | nullable |
-| `Height` | `int` | nullable |
-| `AltText` | `nvarchar(300)` | nullable |
-| `UploadedByAdminId` | `uniqueidentifier` | FK |
-| `CreatedAtUtc` | `datetime2` | |
-
-## 5.5 SitePages
-
-| Column | Type | Notes |
-|---|---|---|
-| `Id` | `uniqueidentifier` | PK |
-| `PageKey` | `nvarchar(100)` | unique مثل `home` |
-| `Name` | `nvarchar(150)` | |
-| `Route` | `nvarchar(200)` | `/` |
-| `IsActive` | `bit` | |
-| `CreatedAtUtc` | `datetime2` | |
-| `UpdatedAtUtc` | `datetime2` | |
-
-## 5.6 SiteSections
-
-كل section حالية في المشروع يجب تمثيلها هنا.
-
-أمثلة:
-
-- `navbar`
-- `hero`
-- `fruit-slice`
-- `marquee`
-- `about`
-- `products-header`
-- `origins-header`
-- `why-us`
-- `footer`
-
-| Column | Type | Notes |
-|---|---|---|
-| `Id` | `uniqueidentifier` | PK |
-| `SitePageId` | `uniqueidentifier` | FK |
-| `SectionKey` | `nvarchar(100)` | unique per page |
-| `DisplayName` | `nvarchar(150)` | |
-| `SortOrder` | `int` | |
-| `IsVisible` | `bit` | |
-| `SectionType` | `nvarchar(50)` | `content`, `collection`, `layout` |
-| `CreatedAtUtc` | `datetime2` | |
-| `UpdatedAtUtc` | `datetime2` | |
-
-## 5.7 SiteSectionVersions
-
-هذا الجدول هو قلب `Site Content` و `Visual Editor`.
-
-| Column | Type | Notes |
-|---|---|---|
-| `Id` | `uniqueidentifier` | PK |
-| `SiteSectionId` | `uniqueidentifier` | FK |
-| `VersionNumber` | `int` | |
-| `Status` | `nvarchar(20)` | `draft`, `published`, `archived` |
-| `Locale` | `nvarchar(10)` | `en`, `ar` |
-| `ContentJson` | `nvarchar(max)` | النصوص, الصور, الروابط, style props |
-| `EditorSchemaJson` | `nvarchar(max)` | nullable, metadata للـ visual editor |
-| `CreatedByAdminId` | `uniqueidentifier` | FK |
-| `CreatedAtUtc` | `datetime2` | |
-| `PublishedAtUtc` | `datetime2` | nullable |
-
-## 5.8 Products
-
-| Column | Type | Notes |
-|---|---|---|
-| `Id` | `uniqueidentifier` | PK |
-| `Slug` | `nvarchar(150)` | unique |
-| `NameEn` | `nvarchar(200)` | |
-| `NameAr` | `nvarchar(200)` | |
-| `DescriptionEn` | `nvarchar(max)` | |
-| `DescriptionAr` | `nvarchar(max)` | |
-| `ImageAssetId` | `uniqueidentifier` | FK nullable |
-| `ImageUrl` | `nvarchar(1000)` | fallback |
-| `ImageFilter` | `nvarchar(100)` | nullable |
-| `CategoryKey` | `nvarchar(100)` | |
-| `IsFeatured` | `bit` | |
-| `IsPublished` | `bit` | |
-| `SortOrder` | `int` | |
-| `CreatedAtUtc` | `datetime2` | |
-| `UpdatedAtUtc` | `datetime2` | |
-
-## 5.9 ProductOrigins
-
-| Column | Type |
-|---|---|
-| `Id` | `uniqueidentifier` |
-| `ProductId` | `uniqueidentifier` |
-| `OriginId` | `uniqueidentifier` |
-
-## 5.10 ProductVarieties
-
-| Column | Type |
-|---|---|
-| `Id` | `uniqueidentifier` |
-| `ProductId` | `uniqueidentifier` |
-| `NameEn` | `nvarchar(150)` |
-| `NameAr` | `nvarchar(150)` |
-| `SortOrder` | `int` |
-
-## 5.11 Origins
-
-| Column | Type | Notes |
-|---|---|---|
-| `Id` | `uniqueidentifier` | PK |
-| `CountryEn` | `nvarchar(150)` | |
-| `CountryAr` | `nvarchar(150)` | |
-| `FlagEmoji` | `nvarchar(20)` | |
-| `SortOrder` | `int` | |
-| `IsPublished` | `bit` | |
-| `CreatedAtUtc` | `datetime2` | |
-| `UpdatedAtUtc` | `datetime2` | |
-
-## 5.12 ContactMessages
-
-| Column | Type | Notes |
-|---|---|---|
-| `Id` | `uniqueidentifier` | PK |
-| `FullName` | `nvarchar(150)` | |
-| `Email` | `nvarchar(256)` | |
-| `Phone` | `nvarchar(50)` | nullable |
-| `Subject` | `nvarchar(200)` | nullable |
-| `Message` | `nvarchar(max)` | |
-| `Status` | `nvarchar(20)` | `new`, `read`, `archived`, `replied` |
-| `CreatedAtUtc` | `datetime2` | |
-| `ReadAtUtc` | `datetime2` | nullable |
-
-## 5.13 Orders
-
-جاهز إذا أضفت ecommerce أو طلبات من الموقع.
-
-| Column | Type | Notes |
-|---|---|---|
-| `Id` | `uniqueidentifier` | PK |
-| `OrderNumber` | `nvarchar(50)` | unique |
-| `CustomerName` | `nvarchar(150)` | |
-| `CustomerEmail` | `nvarchar(256)` | |
-| `CustomerPhone` | `nvarchar(50)` | |
-| `TotalAmount` | `decimal(18,2)` | |
-| `Currency` | `nvarchar(10)` | `EGP` |
-| `Status` | `nvarchar(20)` | `pending`, `confirmed`, `completed`, `cancelled` |
-| `PaymentMethod` | `nvarchar(50)` | |
-| `PaymentStatus` | `nvarchar(20)` | `pending`, `paid`, `failed`, `refunded` |
-| `CreatedAtUtc` | `datetime2` | |
-| `UpdatedAtUtc` | `datetime2` | |
-
-## 5.14 OrderItems
-
-| Column | Type |
-|---|---|
-| `Id` | `uniqueidentifier` |
-| `OrderId` | `uniqueidentifier` |
-| `ProductId` | `uniqueidentifier` |
-| `ProductNameSnapshot` | `nvarchar(200)` |
-| `Quantity` | `int` |
-| `UnitPrice` | `decimal(18,2)` |
-| `LineTotal` | `decimal(18,2)` |
-
-## 5.15 Payments
-
-| Column | Type | Notes |
-|---|---|---|
-| `Id` | `uniqueidentifier` | PK |
-| `OrderId` | `uniqueidentifier` | FK |
-| `Provider` | `nvarchar(50)` | `paymob`, `cod`, ... |
-| `TransactionReference` | `nvarchar(200)` | nullable |
-| `Amount` | `decimal(18,2)` | |
-| `Currency` | `nvarchar(10)` | |
-| `Status` | `nvarchar(20)` | `pending`, `paid`, `failed`, `refunded` |
-| `RawResponseJson` | `nvarchar(max)` | nullable |
-| `CreatedAtUtc` | `datetime2` | |
-| `UpdatedAtUtc` | `datetime2` | |
-
-## 6. محتوى الموقع المطلوب تخزينه
-
-المحتوى الحالي يجب أن يتحول إلى schema واضح.
-
-## 6.1 Home Page Sections
-
-### `navbar`
-
-```json
-{
-  "logoUrl": "/assets/logo.png",
-  "links": [
-    { "key": "about", "labelEn": "About", "labelAr": "عنا", "targetId": "about", "isVisible": true },
-    { "key": "products", "labelEn": "Products", "labelAr": "منتجاتنا", "targetId": "products", "isVisible": true },
-    { "key": "origins", "labelEn": "Origins", "labelAr": "المصادر", "targetId": "origins", "isVisible": true },
-    { "key": "contact", "labelEn": "Contact", "labelAr": "تواصل معنا", "targetId": "contact", "isVisible": true }
-  ]
-}
-```
-
-### `hero`
-
-```json
-{
-  "eyebrowEn": "PREMIUM FRUIT IMPORTERS",
-  "eyebrowAr": "مستوردو كبار الفواكه الفاخرة",
-  "titleEn": "EL MOSTAFA",
-  "titleAr": "المصطفى",
-  "subtitleEn": "Cairo's leading importer of premium tropical and exotic fruits.",
-  "subtitleAr": "المستورد الرائد للفواكه الاستوائية الفاخرة في القاهرة.",
-  "ctaLabelEn": "EXPLORE PRODUCTS",
-  "ctaLabelAr": "استكشف منتجاتنا",
-  "ctaTarget": "products",
-  "backgroundImageUrl": null,
-  "floatingAssets": [
-    { "imageUrl": "/assets/real-orange.png", "size": 180 },
-    { "imageUrl": "/assets/real-kiwi.png", "size": 140 }
-  ]
-}
-```
-
-### `fruit-slice`
-
-```json
-{
-  "titleEn": "The Core of<br />Excellence",
-  "titleAr": "لب<br />التميز",
-  "subtitleEn": "Unveiling nature's finest selections, handpicked for perfection.",
-  "subtitleAr": "نكتشف أرقى مختارات الطبيعة، منتقاة بعناية للوصول إلى المثالية.",
-  "fruitImageTopUrl": "/assets/real-orange.png",
-  "fruitImageBottomUrl": "/assets/real-orange.png"
-}
-```
-
-### `marquee`
-
-```json
-{
-  "itemsEn": ["PREMIUM QUALITY", "IMPORTED DAILY", "100% FRESH"],
-  "itemsAr": ["جودة ممتازة", "مستورد يومياً", "طازج 100%"]
-}
-```
-
-### `about`
-
-```json
-{
-  "eyebrowEn": "OUR STORY",
-  "eyebrowAr": "قصتنا",
-  "titleEn": "The Journey",
-  "titleAr": "الرحلة",
-  "subtitleEn": "Scroll to trace the path of perfection.",
-  "subtitleAr": "اسحب للأسفل لتتبع مسار المثالية.",
-  "nodes": [
-    {
-      "order": 1,
-      "titleEn": "The Origin",
-      "titleAr": "الأصل",
-      "descriptionEn": "Sourced from the world's most premium orchards.",
-      "descriptionAr": "مستوردة من أفخم البساتين حول العالم."
-    }
-  ]
-}
-```
-
-### `products-header`
-
-```json
-{
-  "eyebrowEn": "EL MOSTAFA COLLECTION",
-  "eyebrowAr": "مجموعة المصطفى",
-  "titleEn": "Our Harvest",
-  "titleAr": "حصادنا",
-  "subtitleEn": "Explore our curated selection.",
-  "subtitleAr": "استكشف تشكيلتنا المختارة."
-}
-```
-
-### `origins-header`
-
-```json
-{
-  "eyebrowEn": "OUR NETWORK",
-  "eyebrowAr": "شبكتنا",
-  "titleEn": "Global Origins",
-  "titleAr": "مصادرنا العالمية",
-  "subtitleEn": "We source only from renowned agricultural regions.",
-  "subtitleAr": "نستورد فقط من أشهر المناطق الزراعية."
-}
-```
-
-### `why-us`
-
-```json
-{
-  "eyebrowEn": "OUR COMMITMENT",
-  "eyebrowAr": "التزامنا",
-  "titleEn": "Why El Mostafa",
-  "titleAr": "لماذا المصطفى؟",
-  "subtitleEn": "Excellence in every bite.",
-  "subtitleAr": "التميز في كل قمة.",
-  "pillars": [
-    {
-      "order": 1,
-      "titleEn": "Global Network",
-      "titleAr": "شبكة عالمية",
-      "descriptionEn": "We source directly from premium farms.",
-      "descriptionAr": "نستورد مباشرة من المزارع الفاخرة."
-    }
-  ]
-}
-```
-
-### `footer`
-
-```json
-{
-  "brandText": "EL MOSTAFA",
-  "descriptionEn": "Premium quality fruit importers serving Cairo.",
-  "descriptionAr": "مستوردو فواكه بجودة عالية نخدم القاهرة.",
-  "addressEn": "Cairo, Egypt",
-  "addressAr": "القاهرة، مصر",
-  "email": "contact@elmostafafruits.com",
-  "phone": "+20 100 000 0000",
-  "privacyUrl": "/privacy",
-  "termsUrl": "/terms"
-}
-```
-
-## 7. Endpoints المطلوبة
-
-## 7.1 Admin Auth
+- النصوص الثابتة داخل `LanguageService`
+- `MockSiteContentService`
+- `MockVisualEditorService`
+- `MockAdminDataService`
+- `MockAdminAuthService`
+
+---
+
+## 4. المجالات التي يجب أن يخدمها الباك اند
+
+### 4.1 Admin Auth
+
+- إرسال verification code إلى email الأدمن.
+- التحقق من الكود.
+- إصدار `access token`.
+- إصدار `refresh token`.
+- جلب بيانات الأدمن الحالي.
+- logout / revoke refresh token.
+
+### 4.2 Dashboard
+
+- counters
+- recent activity
+- revenue summary
+- unread messages count
+
+### 4.3 Catalog
+
+- products CRUD
+- origins CRUD
+- media upload
+
+### 4.4 CMS / Site Content
+
+- إدارة sections للصفحة العامة.
+- دعم `draft` و `published`.
+- ترتيب sections.
+- إظهار / إخفاء sections.
+- تخزين النصوص والصور والروابط والقوائم داخل JSON structured content.
+
+### 4.5 Visual Editor
+
+- إرجاع metadata عن كل editable nodes في الصفحة.
+- تعديل node value.
+- تعديل node styles.
+- حفظ draft.
+- publish.
+- ربط node IDs بالمصدر الحقيقي للبيانات.
+
+### 4.6 CRM / Commerce Readiness
+
+- messages
+- orders
+- payments
+
+---
+
+## 5. العقد النهائي للـ editable nodes
+
+### 5.1 Static section node families الموجودة حاليا
+
+هذه الـ keys موجودة فعلا أو مشتقة مباشرة من الـ templates الحالية:
+
+- `navbar.logo`
+- `navbar.about`
+- `navbar.products`
+- `navbar.origins`
+- `navbar.contact`
+- `hero.eyebrow`
+- `hero.title`
+- `hero.subtitle`
+- `hero.cta`
+- `hero.fruit.{index}`
+- `slice.title`
+- `slice.subtitle`
+- `slice.image.top`
+- `slice.image.bottom`
+- `marquee.item.{index}`
+- `about.eyebrow`
+- `about.title`
+- `about.subtitle`
+- `about.tracker.orange`
+- `about.tracker.kiwi`
+- `about.tracker.apple`
+- `about.node1.title`
+- `about.node1.desc`
+- `about.node2.title`
+- `about.node2.desc`
+- `about.node3.title`
+- `about.node3.desc`
+- `products.eyebrow`
+- `products.title`
+- `products.subtitle`
+- `origins.eyebrow`
+- `origins.title`
+- `origins.subtitle`
+- `whyUs.eyebrow`
+- `whyUs.title`
+- `whyUs.subtitle`
+- `whyUs.pillar1.title`
+- `whyUs.pillar1.desc`
+- `whyUs.pillar2.title`
+- `whyUs.pillar2.desc`
+- `whyUs.pillar3.title`
+- `whyUs.pillar3.desc`
+- `footer.brandText`
+- `footer.description`
+- `footer.address`
+- `footer.email`
+- `footer.phone`
+
+### 5.2 Dynamic entity node families الموجودة حاليا
+
+- `product.{productId}.image`
+- `product.{productId}.category`
+- `product.{productId}.title`
+- `product.{productId}.origin`
+- `product.{productId}.variety.{index}`
+- `origin.{originStableKey}.flag`
+- `origin.{originStableKey}.title`
+- `origin.{originStableKey}.product.{index}`
+
+### 5.3 قاعدة مهمة
+
+الـ backend لا يجب أن يعتمد على parsing نصي عشوائي داخل controller.
+
+يجب أن يكون هناك node binding layer واضحة تعرف:
+
+- `nodeId`
+- `type`
+- `scope`
+- `sourceType`
+- `sourcePath`
+- `pageKey`
+- `sectionKey`
+
+---
+
+## 6. الـ APIs المطلوبة
+
+## 6.1 Admin Auth
 
 ### `POST /api/admin/auth/request-code`
-
-يستقبل الإيميل ويرسل verification code.
 
 Request:
 
@@ -454,8 +228,8 @@ Response:
 ```json
 {
   "success": true,
-  "message": "Verification code sent.",
-  "expiresInSeconds": 300
+  "expiresInSeconds": 300,
+  "message": "Verification code sent."
 }
 ```
 
@@ -488,38 +262,13 @@ Response:
 
 ### `POST /api/admin/auth/refresh`
 
-Request:
-
-```json
-{
-  "refreshToken": "refresh-token"
-}
-```
-
 ### `POST /api/admin/auth/logout`
-
-Request:
-
-```json
-{
-  "refreshToken": "refresh-token"
-}
-```
 
 ### `GET /api/admin/auth/me`
 
-Response:
+---
 
-```json
-{
-  "id": "2fc04a0d-4f31-4e45-8c5b-8d2e0a5d1c10",
-  "email": "admin@example.com",
-  "fullName": "Main Admin",
-  "role": "SuperAdmin"
-}
-```
-
-## 7.2 Dashboard
+## 6.2 Dashboard
 
 ### `GET /api/admin/dashboard/summary`
 
@@ -529,12 +278,12 @@ Response:
 {
   "productsCount": 8,
   "originsCount": 7,
-  "messagesCount": 12,
-  "unreadMessagesCount": 3,
   "ordersCount": 4,
   "pendingOrdersCount": 2,
+  "messagesCount": 12,
+  "unreadMessagesCount": 3,
   "paymentsCount": 4,
-  "paidAmount": 212.00,
+  "paidAmount": 1745.00,
   "currency": "EGP"
 }
 ```
@@ -551,22 +300,59 @@ Response:
     "createdAtUtc": "2026-04-20T08:15:00Z"
   },
   {
-    "type": "message",
-    "title": "New contact message from Ahmed",
+    "type": "message_created",
+    "title": "New contact message from Ahmed Samir",
     "createdAtUtc": "2026-04-20T07:55:00Z"
   }
 ]
 ```
 
-## 7.3 Products
+---
+
+## 6.3 Products
 
 ### `GET /api/admin/products`
+
+Supports:
+
+- `search`
+- `status`
+- `category`
+- `originId`
+- `page`
+- `pageSize`
+
+Response item shape:
+
+```json
+{
+  "id": "1",
+  "slug": "premium-apples",
+  "nameEn": "Premium Apples",
+  "nameAr": "تفاح فاخر",
+  "descriptionEn": "Exquisite selection of crisp apples.",
+  "descriptionAr": "تشكيلة رائعة من التفاح الفاخر.",
+  "imageAssetId": "0c97f281-a68c-4b0e-a8d1-13cf6b7f9c17",
+  "imageUrl": "/uploads/products/premium-apples.png",
+  "imageFilter": "none",
+  "categoryKey": "stone",
+  "originIds": ["origin-italy", "origin-greece"],
+  "varieties": [
+    { "id": "var-1", "nameEn": "Gala", "nameAr": "جالا", "sortOrder": 1 }
+  ],
+  "isFeatured": true,
+  "isPublished": true,
+  "sortOrder": 1
+}
+```
 
 ### `GET /api/admin/products/{id}`
 
 ### `POST /api/admin/products`
 
-Request:
+### `PUT /api/admin/products/{id}`
+
+Request body for create/update:
 
 ```json
 {
@@ -579,34 +365,38 @@ Request:
   "imageUrl": "/uploads/products/premium-apples.png",
   "imageFilter": "none",
   "categoryKey": "stone",
-  "isFeatured": true,
-  "isPublished": true,
-  "sortOrder": 1,
-  "originIds": [
-    "c8fc3041-2a5a-4af7-b2c9-8a6a37265530",
-    "49d3c0f8-9f7a-47d2-8ddd-e0f0d5982ce7"
-  ],
+  "originIds": ["origin-italy", "origin-greece"],
   "varieties": [
     { "nameEn": "Gala", "nameAr": "جالا", "sortOrder": 1 },
     { "nameEn": "Golden", "nameAr": "جولدن", "sortOrder": 2 }
-  ]
+  ],
+  "isFeatured": true,
+  "isPublished": true,
+  "sortOrder": 1
 }
 ```
 
-### `PUT /api/admin/products/{id}`
-
-نفس payload الخاص بالإنشاء.
-
 ### `DELETE /api/admin/products/{id}`
 
-## 7.4 Origins
+---
+
+## 6.4 Origins
 
 ### `GET /api/admin/origins`
 
+### `GET /api/admin/origins/{id}`
+
 ### `POST /api/admin/origins`
+
+### `PUT /api/admin/origins/{id}`
+
+### `DELETE /api/admin/origins/{id}`
+
+Request body:
 
 ```json
 {
+  "slug": "italy",
   "countryEn": "Italy",
   "countryAr": "إيطاليا",
   "flagEmoji": "🇮🇹",
@@ -615,225 +405,9 @@ Request:
 }
 ```
 
-### `PUT /api/admin/origins/{id}`
+---
 
-### `DELETE /api/admin/origins/{id}`
-
-## 7.5 Site Content
-
-هذا الجزء structured editing.
-
-### `GET /api/admin/site-content/pages`
-
-Response:
-
-```json
-[
-  {
-    "pageKey": "home",
-    "name": "Home",
-    "route": "/",
-    "sections": [
-      { "sectionKey": "navbar", "displayName": "Navbar", "sortOrder": 1, "isVisible": true },
-      { "sectionKey": "hero", "displayName": "Hero", "sortOrder": 2, "isVisible": true },
-      { "sectionKey": "about", "displayName": "About", "sortOrder": 3, "isVisible": true }
-    ]
-  }
-]
-```
-
-### `GET /api/admin/site-content/pages/{pageKey}/sections/{sectionKey}?locale=ar&status=draft`
-
-Response:
-
-```json
-{
-  "pageKey": "home",
-  "sectionKey": "hero",
-  "locale": "ar",
-  "status": "draft",
-  "versionNumber": 5,
-  "content": {
-    "eyebrowAr": "مستوردو كبار الفواكه الفاخرة",
-    "titleAr": "المصطفى",
-    "subtitleAr": "المستورد الرائد للفواكه الفاخرة في القاهرة.",
-    "ctaLabelAr": "استكشف منتجاتنا"
-  }
-}
-```
-
-### `PUT /api/admin/site-content/pages/{pageKey}/sections/{sectionKey}`
-
-Request:
-
-```json
-{
-  "locale": "ar",
-  "status": "draft",
-  "content": {
-    "titleAr": "المصطفى",
-    "subtitleAr": "وصف جديد",
-    "ctaLabelAr": "اعرف أكثر"
-  }
-}
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "versionNumber": 6
-}
-```
-
-### `POST /api/admin/site-content/publish`
-
-Request:
-
-```json
-{
-  "pageKey": "home",
-  "sectionKeys": ["hero", "footer"],
-  "publishAllDrafts": false
-}
-```
-
-### `POST /api/admin/site-content/reorder-sections`
-
-```json
-{
-  "pageKey": "home",
-  "sections": [
-    { "sectionKey": "navbar", "sortOrder": 1 },
-    { "sectionKey": "hero", "sortOrder": 2 },
-    { "sectionKey": "products-header", "sortOrder": 3 }
-  ]
-}
-```
-
-### `PATCH /api/admin/site-content/sections/{sectionKey}/visibility`
-
-```json
-{
-  "isVisible": true
-}
-```
-
-## 7.6 Visual Editor
-
-هذا الجزء مختلف عن `Site Content`.
-
-`Site Content` = فورمات منظمة.
-
-`Visual Editor` = فتح نسخة من الصفحة نفسها مع editable overlays.
-
-### `GET /api/admin/visual-editor/page/home?locale=ar&status=draft`
-
-يرجع كل ما يحتاجه الـ editor:
-
-```json
-{
-  "pageKey": "home",
-  "locale": "ar",
-  "status": "draft",
-  "publicRoute": "/",
-  "versionStamp": "home-ar-draft-v12",
-  "sections": [
-    {
-      "sectionKey": "hero",
-      "componentKey": "hero",
-      "editableNodes": [
-        {
-          "nodeId": "hero.title",
-          "type": "text",
-          "label": "Hero Title",
-          "value": "المصطفى",
-          "selectors": ["[data-edit-id='hero.title']"]
-        },
-        {
-          "nodeId": "hero.subtitle",
-          "type": "textarea",
-          "label": "Hero Subtitle",
-          "value": "المستورد الرائد...",
-          "selectors": ["[data-edit-id='hero.subtitle']"]
-        },
-        {
-          "nodeId": "hero.backgroundImageUrl",
-          "type": "image",
-          "label": "Hero Background",
-          "value": "/uploads/site/hero-bg.webp",
-          "selectors": ["[data-edit-id='hero.backgroundImage']"]
-        }
-      ]
-    }
-  ]
-}
-```
-
-### `PATCH /api/admin/visual-editor/nodes/{nodeId}`
-
-Request:
-
-```json
-{
-  "pageKey": "home",
-  "locale": "ar",
-  "status": "draft",
-  "value": "محتوى جديد"
-}
-```
-
-### `PATCH /api/admin/visual-editor/styles/{nodeId}`
-
-Request:
-
-```json
-{
-  "pageKey": "home",
-  "locale": "ar",
-  "status": "draft",
-  "styles": {
-    "color": "#ffffff",
-    "fontSize": "72px",
-    "textAlign": "center"
-  }
-}
-```
-
-### `POST /api/admin/visual-editor/save-layout`
-
-Request:
-
-```json
-{
-  "pageKey": "home",
-  "locale": "ar",
-  "status": "draft",
-  "nodes": [
-    {
-      "nodeId": "hero.title",
-      "value": "محتوى جديد",
-      "styles": {
-        "color": "#ffffff"
-      }
-    }
-  ]
-}
-```
-
-### `POST /api/admin/visual-editor/publish`
-
-Request:
-
-```json
-{
-  "pageKey": "home",
-  "locale": "ar"
-}
-```
-
-## 7.7 Media Upload
+## 6.5 Media
 
 ### `POST /api/admin/media`
 
@@ -855,11 +429,215 @@ Response:
   "contentType": "image/webp",
   "sizeInBytes": 452120,
   "width": 1920,
-  "height": 1080
+  "height": 1080,
+  "altText": "Hero background"
 }
 ```
 
-## 7.8 Messages
+---
+
+## 6.6 Site Content
+
+هذا الجزء مسؤول عن الـ structured editing وليس التعديل الحر.
+
+### `GET /api/admin/site-content/pages`
+
+Response:
+
+```json
+[
+  {
+    "pageKey": "home",
+    "name": "Home",
+    "route": "/",
+    "sections": [
+      { "sectionKey": "navbar", "displayName": "Navbar", "sortOrder": 1, "isVisible": true },
+      { "sectionKey": "hero", "displayName": "Hero", "sortOrder": 2, "isVisible": true },
+      { "sectionKey": "slice", "displayName": "Fruit Slice", "sortOrder": 3, "isVisible": true },
+      { "sectionKey": "marquee", "displayName": "Marquee", "sortOrder": 4, "isVisible": true },
+      { "sectionKey": "about", "displayName": "About", "sortOrder": 5, "isVisible": true },
+      { "sectionKey": "products", "displayName": "Products Header", "sortOrder": 6, "isVisible": true },
+      { "sectionKey": "origins", "displayName": "Origins Header", "sortOrder": 7, "isVisible": true },
+      { "sectionKey": "whyUs", "displayName": "Why Us", "sortOrder": 8, "isVisible": true },
+      { "sectionKey": "footer", "displayName": "Footer", "sortOrder": 9, "isVisible": true }
+    ]
+  }
+]
+```
+
+### `GET /api/admin/site-content/pages/{pageKey}/sections/{sectionKey}?locale=ar&status=draft`
+
+Response:
+
+```json
+{
+  "pageKey": "home",
+  "sectionKey": "hero",
+  "locale": "ar",
+  "status": "draft",
+  "versionNumber": 5,
+  "content": {
+    "eyebrow": "مستوردو كبار الفواكه الفاخرة",
+    "title": "المصطفى",
+    "subtitle": "المستورد الرائد للفواكه الفاخرة في القاهرة.",
+    "cta": "استكشف منتجاتنا"
+  }
+}
+```
+
+### `PUT /api/admin/site-content/pages/{pageKey}/sections/{sectionKey}`
+
+Request:
+
+```json
+{
+  "locale": "ar",
+  "status": "draft",
+  "content": {
+    "title": "المصطفى",
+    "subtitle": "وصف جديد",
+    "cta": "اعرف أكثر"
+  }
+}
+```
+
+### `POST /api/admin/site-content/publish`
+
+Request:
+
+```json
+{
+  "pageKey": "home",
+  "sectionKeys": ["hero", "footer"],
+  "publishAllDrafts": false
+}
+```
+
+### `POST /api/admin/site-content/reorder-sections`
+
+### `PATCH /api/admin/site-content/sections/{sectionKey}/visibility`
+
+---
+
+## 6.7 Visual Editor
+
+الـ visual editor يجب أن يشتغل فوق نفس data source المستخدمة في `Site Content`, `Products`, `Origins` وليس storage منفصل.
+
+### `GET /api/admin/visual-editor/page/{pageKey}?locale=ar&status=draft`
+
+Response:
+
+```json
+{
+  "pageKey": "home",
+  "locale": "ar",
+  "status": "draft",
+  "publicRoute": "/",
+  "versionStamp": "home-ar-draft-v12",
+  "sections": [
+    {
+      "sectionKey": "hero",
+      "editableNodes": [
+        {
+          "nodeId": "hero.title",
+          "label": "Hero Title",
+          "type": "text",
+          "scope": "localized",
+          "sectionKey": "hero",
+          "value": "المصطفى",
+          "styles": null,
+          "binding": {
+            "sourceType": "cms_section_field",
+            "sourceRef": "home.hero",
+            "fieldPath": "title"
+          }
+        },
+        {
+          "nodeId": "slice.image.top",
+          "label": "Slice Top Image",
+          "type": "image",
+          "scope": "global",
+          "sectionKey": "slice",
+          "value": "/assets/real-orange.png",
+          "styles": null,
+          "binding": {
+            "sourceType": "cms_section_field",
+            "sourceRef": "home.slice",
+            "fieldPath": "imageTopUrl"
+          }
+        },
+        {
+          "nodeId": "product.1.title",
+          "label": "Premium Apples Title",
+          "type": "text",
+          "scope": "localized",
+          "sectionKey": "products",
+          "value": "تفاح فاخر",
+          "styles": null,
+          "binding": {
+            "sourceType": "product_field",
+            "sourceRef": "products/1",
+            "fieldPath": "nameAr"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+### `PATCH /api/admin/visual-editor/nodes/{nodeId}`
+
+Request:
+
+```json
+{
+  "pageKey": "home",
+  "locale": "ar",
+  "status": "draft",
+  "value": "محتوى جديد"
+}
+```
+
+السلوك:
+
+- لو الـ node مربوط بـ CMS section يتم تعديل draft version لتلك section.
+- لو الـ node مربوط بـ product/origin يتم تعديل draft data في جدول الكيان نفسه أو draft shadow table.
+- لو الـ node مربوط بـ image asset يتم تحديث asset reference فقط.
+
+### `PATCH /api/admin/visual-editor/styles/{nodeId}`
+
+Request:
+
+```json
+{
+  "pageKey": "home",
+  "locale": "ar",
+  "status": "draft",
+  "styles": {
+    "color": "#ffffff",
+    "fontSize": "72px",
+    "textAlign": "center"
+  }
+}
+```
+
+### `POST /api/admin/visual-editor/save-layout`
+
+### `POST /api/admin/visual-editor/publish`
+
+Request:
+
+```json
+{
+  "pageKey": "home",
+  "locale": "ar"
+}
+```
+
+---
+
+## 6.8 Messages
 
 ### `GET /api/admin/messages?status=new&page=1&pageSize=20`
 
@@ -877,7 +655,9 @@ Response:
 
 اختياري.
 
-## 7.9 Orders
+---
+
+## 6.9 Orders
 
 ### `GET /api/admin/orders`
 
@@ -891,7 +671,9 @@ Response:
 }
 ```
 
-## 7.10 Payments
+---
+
+## 6.10 Payments
 
 ### `GET /api/admin/payments`
 
@@ -905,11 +687,13 @@ Response:
 }
 ```
 
-## 7.11 Public Endpoints للموقع الأساسي
+---
 
-الموقع العام يجب أن يقرأ فقط من `published`.
+## 6.11 Public APIs
 
-### `GET /api/public/site-content/home?locale=ar`
+الـ public site يجب أن يقرأ فقط من `published` data.
+
+### `GET /api/public/site-content/{pageKey}?locale=ar`
 
 Response:
 
@@ -920,8 +704,13 @@ Response:
   "sections": [
     {
       "sectionKey": "hero",
+      "sortOrder": 2,
+      "isVisible": true,
       "content": {
-        "titleAr": "المصطفى"
+        "eyebrow": "مستوردو كبار الفواكه الفاخرة",
+        "title": "المصطفى",
+        "subtitle": "المستورد الرائد للفواكه الفاخرة في القاهرة.",
+        "cta": "استكشف منتجاتنا"
       }
     }
   ]
@@ -944,108 +733,69 @@ Response:
 }
 ```
 
-## 8. DTOs مقترحة في .NET
+---
 
-```csharp
-public sealed record RequestAdminCodeRequest(string Email);
+## 7. قواعد التصميم
 
-public sealed record VerifyAdminCodeRequest(string Email, string Code);
+1. كل admin endpoints يجب أن تكون protected.
+2. verification codes لا تخزن plain text.
+3. refresh tokens لا تخزن plain text.
+4. `draft` و `published` يجب أن يكونا واضحين في الـ schema.
+5. الـ visual editor لا يجب أن ينشئ source of truth جديد منفصل عن CMS.
+6. النصوص العربية والإنجليزية يجب أن تحفظ `nvarchar` / UTF-8.
+7. media URLs يجب أن تكون ثابتة وصالحة للفرونت.
+8. أي dynamic node ID يجب أن يعتمد على stable key وليس label ظاهر للمستخدم.
 
-public sealed record AdminAuthResponse(
-    string AccessToken,
-    string RefreshToken,
-    int ExpiresInSeconds,
-    AdminUserDto Admin);
+---
 
-public sealed record AdminUserDto(
-    Guid Id,
-    string Email,
-    string FullName,
-    string Role);
+## 8. التوصية التقنية
 
-public sealed record UpdateSiteSectionRequest(
-    string Locale,
-    string Status,
-    JsonElement Content);
+الستاك المقترح:
 
-public sealed record PublishSiteContentRequest(
-    string PageKey,
-    IReadOnlyList<string> SectionKeys,
-    bool PublishAllDrafts);
+- `ASP.NET Core Web API`
+- `EF Core`
+- `SQL Server`
+- `JWT access token`
+- `Refresh token`
+- `SMTP / email provider`
+- `Local disk` أو `S3 / Blob Storage` للصور
 
-public sealed record CreateOrUpdateProductRequest(
-    string Slug,
-    string NameEn,
-    string NameAr,
-    string DescriptionEn,
-    string DescriptionAr,
-    Guid? ImageAssetId,
-    string? ImageUrl,
-    string? ImageFilter,
-    string CategoryKey,
-    bool IsFeatured,
-    bool IsPublished,
-    int SortOrder,
-    IReadOnlyList<Guid> OriginIds,
-    IReadOnlyList<ProductVarietyRequest> Varieties);
+---
 
-public sealed record ProductVarietyRequest(
-    string NameEn,
-    string NameAr,
-    int SortOrder);
+## 9. خطة الربط مع الفرونت الحالي
 
-public sealed record UpdateVisualNodeRequest(
-    string PageKey,
-    string Locale,
-    string Status,
-    JsonElement Value);
-```
+### Phase 1
 
-## 9. Rules مهمة
+- auth
+- dashboard summary
+- products CRUD
+- origins CRUD
+- media upload
 
-- كل النصوص العربية والإنجليزية تحفظ UTF-8 / `nvarchar`.
-- لا تعتمد على `data.json` بعد إطلاق الـ admin.
-- كل API admin لازم تكون محمية بـ JWT.
-- ضع `rate limiting` على `request-code` و `verify-code`.
-- verification code لا يخزن plain text.
-- الصور يجب أن ترجع URL ثابت يصلح للـ Angular frontend.
-- `Visual Editor` لازم يقرأ ويكتب على نفس source of truth الخاصة بـ `SiteSectionVersions`.
+### Phase 2
 
-## 10. السيناريو الكامل المطلوب
+- site-content endpoints
+- public site-content endpoint
+- استبدال `LanguageService` و `MockSiteContentService`
 
-1. الإدمن يدخل الإيميل.
-2. الباك يرسل verification code.
-3. الإدمن يدخل الكود.
-4. الباك يرجع `accessToken` و `refreshToken`.
-5. dashboard تفتح.
-6. الإدمن يدخل `Site Content` أو `Visual Editor`.
-7. التعديلات تحفظ في `draft`.
-8. عند `Publish` أو `Save & Publish` يتم نسخ draft إلى published.
-9. الموقع الأساسي يقرأ آخر `published` version مباشرة.
+### Phase 3
 
-## 11. أقل نسخة MVP
+- visual-editor node bindings
+- live preview draft flow
+- publish flow
 
-لو تريد البدء بسرعة:
+### Phase 4
 
-- نفذ أولاً:
-  - `AdminUsers`
-  - `AdminVerificationCodes`
-  - `AdminRefreshTokens`
-  - `MediaAssets`
-  - `SitePages`
-  - `SiteSections`
-  - `SiteSectionVersions`
-  - `Products`
-  - `Origins`
-  - `ContactMessages`
-- ثم endpoints:
-  - auth
-  - dashboard summary
-  - products CRUD
-  - origins CRUD
-  - site-content read/update/publish
-  - visual-editor page/nodes/publish
-  - media upload
-  - messages list/update
+- messages
+- orders
+- payments
 
-`Orders` و `Payments` يمكن تجهيزهم من البداية أو تأجيلهم إذا الموقع لا يبيع حالياً.
+---
+
+## 10. المطلوب من الداتابيز
+
+الهيكل المقترح للداتابيز موجود في الملف التالي:
+
+- `docs/admin-database-structure.md`
+
+هذا الملف هو المرجع الأساسي للجداول، العلاقات، والـ mapping بين الجداول والـ endpoints.

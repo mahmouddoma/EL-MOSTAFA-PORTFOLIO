@@ -33,7 +33,7 @@ body.dark-theme {
   --text-secondary: #9ca3af;
   --text-muted: rgba(255, 255, 255, 0.5);
   --border-color: rgba(255, 255, 255, 0.08);
-  --color-dark: #0f0f0f; /* Fixed: should always be dark */
+  --color-dark: #0f0f0f;
 
   --card-bg: #1a1a1a;
   --glass-bg: rgba(30, 30, 30, 0.6);
@@ -148,4 +148,20 @@ html {
 }
 .glow-border:hover::before {
   opacity: 1;
+}
+
+body.editor-preview [data-edit-id] {
+  outline: 1px dashed rgba(245, 124, 0, 0.45);
+  outline-offset: 6px;
+  cursor: pointer;
+  transition: outline-color 0.2s ease;
+}
+
+body.editor-preview [data-edit-id]:hover {
+  outline-color: rgba(245, 124, 0, 0.9);
+}
+
+body.editor-preview .editor-node-selected {
+  outline: 2px solid rgba(245, 124, 0, 0.95) !important;
+  box-shadow: 0 0 0 6px rgba(245, 124, 0, 0.12);
 }

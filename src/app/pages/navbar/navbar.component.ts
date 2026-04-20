@@ -1,13 +1,15 @@
 import { Component, HostListener, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AnimationService } from '../../core/services/animation.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LanguageService } from '../../core/services/language.service';
+import { MockSiteContentService } from '../../core/services/mock-site-content.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <!-- Custom Cursor -->
     <div
@@ -27,6 +29,10 @@ import { LanguageService } from '../../core/services/language.service';
               src="assets/logo.png"
               alt="EL MOSTAFA"
               class="logo-img"
+              data-edit-id="navbar.logo"
+              data-edit-label="Navbar Logo"
+              data-edit-type="image"
+              data-edit-scope="global"
               loading="eager"
               decoding="sync"
               fetchpriority="high"
@@ -38,10 +44,18 @@ import { LanguageService } from '../../core/services/language.service';
         <!-- Desktop Navigation -->
         <div class="d-none d-lg-flex align-items-center gap-4">
           <div class="links">
-            <a href="#about" (click)="scrollTo('about', $event)">{{ lang.translate('nav.about') }}</a>
-            <a href="#products" (click)="scrollTo('products', $event)">{{ lang.translate('nav.products') }}</a>
-            <a href="#origins" (click)="scrollTo('origins', $event)">{{ lang.translate('nav.origins') }}</a>
-            <a href="#contact" (click)="scrollTo('contact', $event)">{{ lang.translate('nav.contact') }}</a>
+            <a href="#about" (click)="scrollTo('about', $event)">
+              <span data-edit-id="navbar.about" data-edit-label="Navbar About">{{ content.getNavbarLabel('about', lang.currentLang()) }}</span>
+            </a>
+            <a href="#products" (click)="scrollTo('products', $event)">
+              <span data-edit-id="navbar.products" data-edit-label="Navbar Products">{{ content.getNavbarLabel('products', lang.currentLang()) }}</span>
+            </a>
+            <a href="#origins" (click)="scrollTo('origins', $event)">
+              <span data-edit-id="navbar.origins" data-edit-label="Navbar Origins">{{ content.getNavbarLabel('origins', lang.currentLang()) }}</span>
+            </a>
+            <a href="#contact" (click)="scrollTo('contact', $event)">
+              <span data-edit-id="navbar.contact" data-edit-label="Navbar Contact">{{ content.getNavbarLabel('contact', lang.currentLang()) }}</span>
+            </a>
           </div>
 
           <div class="v-divider"></div>
@@ -61,6 +75,13 @@ import { LanguageService } from '../../core/services/language.service';
             <button class="lang-btn" (click)="lang.toggleLanguage()">
               <span class="lang-code">{{ lang.currentLang() === 'en' ? 'AR' : 'EN' }}</span>
             </button>
+            <a class="admin-link" routerLink="/admin/login" title="Admin Login">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <path d="M10 17l5-5-5-5" />
+                <path d="M15 12H3" />
+              </svg>
+            </a>
           </div>
         </div>
 
@@ -87,12 +108,13 @@ import { LanguageService } from '../../core/services/language.service';
       </div>
 
       <!-- Mobile Overlay Menu -->
-      <div class="mobile-overlay" [class.show]="isMenuOpen()">
+        <div class="mobile-overlay" [class.show]="isMenuOpen()">
         <div class="overlay-links">
-          <a href="#about" (click)="mobileNavigate('about', $event)">{{ lang.translate('nav.about') }}</a>
-          <a href="#products" (click)="mobileNavigate('products', $event)">{{ lang.translate('nav.products') }}</a>
-          <a href="#origins" (click)="mobileNavigate('origins', $event)">{{ lang.translate('nav.origins') }}</a>
-          <a href="#contact" (click)="mobileNavigate('contact', $event)">{{ lang.translate('nav.contact') }}</a>
+          <a href="#about" (click)="mobileNavigate('about', $event)">{{ content.getNavbarLabel('about', lang.currentLang()) }}</a>
+          <a href="#products" (click)="mobileNavigate('products', $event)">{{ content.getNavbarLabel('products', lang.currentLang()) }}</a>
+          <a href="#origins" (click)="mobileNavigate('origins', $event)">{{ content.getNavbarLabel('origins', lang.currentLang()) }}</a>
+          <a href="#contact" (click)="mobileNavigate('contact', $event)">{{ content.getNavbarLabel('contact', lang.currentLang()) }}</a>
+          <a routerLink="/admin/login" (click)="toggleMenu()">Admin Login</a>
         </div>
       </div>
     </nav>
@@ -210,6 +232,28 @@ import { LanguageService } from '../../core/services/language.service';
         transition: all 0.3s ease;
         padding: 0.5rem;
         border-radius: 50%;
+      }
+
+      .admin-link {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-primary);
+        border-radius: 50%;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .admin-link:hover {
+        background: var(--border-color);
+        transform: translateY(-2px);
+      }
+
+      .admin-link svg {
+        width: 18px;
+        height: 18px;
       }
 
       .icon-btn:hover, .lang-btn:hover {
@@ -390,6 +434,7 @@ export class NavbarComponent {
   private animationService = inject(AnimationService);
   theme = inject(ThemeService);
   lang = inject(LanguageService);
+  content = inject(MockSiteContentService);
 
   mouseX = () => this.animationService.mousePosition().x;
   mouseY = () => this.animationService.mousePosition().y;

@@ -54,11 +54,11 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
       <div class="container py-5">
         <div class="d-flex justify-content-between align-items-end mb-5 flex-wrap gap-4">
           <div>
-            <span class="eyebrow">{{ lang.translate('products.eyebrow') }}</span>
-            <h2 class="display-3 font-playfair fw-bold mb-2 theme-text">
+            <span class="eyebrow" data-edit-id="products.eyebrow" data-edit-label="Products Eyebrow">{{ lang.translate('products.eyebrow') }}</span>
+            <h2 class="display-3 font-playfair fw-bold mb-2 theme-text" data-edit-id="products.title" data-edit-label="Products Title">
               {{ lang.translate('products.title') }}
             </h2>
-            <p class="theme-text mb-0" style="max-width:500px">
+            <p class="theme-text mb-0" style="max-width:500px" data-edit-id="products.subtitle" data-edit-label="Products Subtitle" data-edit-type="textarea">
               {{ lang.translate('products.subtitle') }}
             </p>
           </div>
