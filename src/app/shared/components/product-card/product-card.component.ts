@@ -32,6 +32,8 @@ import { LanguageService } from '../../../core/services/language.service';
               product.imageFilter ? product.imageFilter + ' contrast(1.1)' : 'contrast(1.1)'
             "
             alt="{{ product.name }}"
+            loading="lazy"
+            decoding="async"
           />
           <div class="pedestal-line"></div>
         </div>

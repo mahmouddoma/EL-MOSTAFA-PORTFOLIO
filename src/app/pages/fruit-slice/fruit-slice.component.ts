@@ -80,7 +80,13 @@ interface Particle {
                 'deg)'
               "
             >
-              <img src="assets/real-orange.png" class="fruit-visual" alt="Real Orange Top" />
+              <img
+                src="assets/real-orange.png"
+                class="fruit-visual"
+                alt="Real Orange Top"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <div
               class="fruit-half fruit-bottom"
@@ -98,6 +104,8 @@ interface Particle {
                 src="assets/real-orange.png"
                 class="fruit-visual bottom-visual"
                 alt="Real Orange Bottom"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -125,6 +133,8 @@ interface Particle {
           <img
             [src]="p.type === 'juice' ? 'assets/real-splash.png' : 'assets/real-leaf.png'"
             alt="Particle"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </div>

@@ -23,7 +23,14 @@ import { LanguageService } from '../../core/services/language.service';
       <div class="container nav-content">
         <a class="brand" href="#" (click)="scrollToTop($event)">
           <div class="logo-wrapper">
-            <img src="assets/logo.png" alt="EL MOSTAFA" class="logo-img" />
+            <img
+              src="assets/logo.png"
+              alt="EL MOSTAFA"
+              class="logo-img"
+              loading="eager"
+              decoding="sync"
+              fetchpriority="high"
+            />
             <div class="logo-shine"></div>
           </div>
         </a>

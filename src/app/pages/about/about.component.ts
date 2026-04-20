@@ -55,6 +55,8 @@ import { LanguageService } from '../../core/services/language.service';
               'rotate(' + scrollProgress * 1080 + 'deg) scale(' + trackerScale + ')'
             "
             alt="Orange"
+            loading="lazy"
+            decoding="async"
           />
           <img
             src="assets/real-kiwi.png"
@@ -65,6 +67,8 @@ import { LanguageService } from '../../core/services/language.service';
               'rotate(' + scrollProgress * 1080 + 'deg) scale(' + trackerScale + ')'
             "
             alt="Kiwi"
+            loading="lazy"
+            decoding="async"
           />
           <img
             src="assets/real-apple.png"
@@ -75,6 +79,8 @@ import { LanguageService } from '../../core/services/language.service';
               'rotate(' + scrollProgress * 1080 + 'deg) scale(' + trackerScale + ')'
             "
             alt="Apple"
+            loading="lazy"
+            decoding="async"
           />
         </div>
 

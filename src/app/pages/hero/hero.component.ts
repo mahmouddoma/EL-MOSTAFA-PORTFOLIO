@@ -30,7 +30,7 @@ interface FloatingFruit {
       <!-- Floating Parallax Real Fruits (Behind text) -->
       <div class="fruits-layer">
         <div
-          *ngFor="let fruit of floatingFruits"
+          *ngFor="let fruit of floatingFruits; let i = index"
           class="floating-fruit"
           [style.left]="fruit.left"
           [style.top]="fruit.top"
@@ -40,7 +40,15 @@ interface FloatingFruit {
           [style.animation-delay]="fruit.delay"
           [style.transform]="'translateY(' + fruit.translateY + 'px)'"
         >
-          <img [src]="fruit.imgSrc" class="real-fruit" />
+          <img
+            [src]="fruit.imgSrc"
+            class="real-fruit"
+            alt=""
+            [attr.loading]="i < 2 ? 'eager' : 'lazy'"
+            decoding="async"
+            [attr.fetchpriority]="i === 0 ? 'high' : null"
+            aria-hidden="true"
+          />
         </div>
       </div>
 
