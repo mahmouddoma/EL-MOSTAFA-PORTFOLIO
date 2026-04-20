@@ -59,7 +59,11 @@ interface FloatingFruit {
 
       <div class="container hero-content">
         <div class="hero-text-wrapper stagger-item">
-          <span class="eyebrow glass-panel" data-edit-id="hero.eyebrow" data-edit-label="Hero Eyebrow">
+          <span
+            class="eyebrow glass-panel"
+            data-edit-id="hero.eyebrow"
+            data-edit-label="Hero Eyebrow"
+          >
             {{ content.getHeroValue('eyebrow', lang.currentLang()) }}
           </span>
         </div>
@@ -71,7 +75,7 @@ interface FloatingFruit {
               class="char-outline"
               [style.transition-delay]="i * 0.05 + 's'"
             >
-              {{ char === ' ' ? '\u00A0' : char }}
+              {{ char === ' ' ? ' ' : char }}
             </span>
           </div>
 
@@ -83,18 +87,30 @@ interface FloatingFruit {
               [style.transition-delay]="i * 0.05 + 's'"
               [style.transform]="getCharTransform(i)"
             >
-              {{ char === ' ' ? '\u00A0' : char }}
+              {{ char === ' ' ? ' ' : char }}
             </span>
           </h1>
         </div>
         <div class="hero-subtitle-wrapper stagger-item">
-          <p class="hero-subtitle" data-edit-id="hero.subtitle" data-edit-label="Hero Subtitle" data-edit-type="textarea">
+          <p
+            class="hero-subtitle"
+            data-edit-id="hero.subtitle"
+            data-edit-label="Hero Subtitle"
+            data-edit-type="textarea"
+          >
             {{ content.getHeroValue('subtitle', lang.currentLang()) }}
           </p>
         </div>
         <div class="hero-cta-wrapper stagger-item">
-          <button class="btn btn-primary cta-button glow-border" (click)="scrollToProducts()" data-edit-id="hero.cta" data-edit-label="Hero CTA">
-            <span style="position:relative; z-index:2">{{ content.getHeroValue('cta', lang.currentLang()) }}</span>
+          <button
+            class="btn btn-primary cta-button glow-border"
+            (click)="scrollToProducts()"
+            data-edit-id="hero.cta"
+            data-edit-label="Hero CTA"
+          >
+            <span style="position:relative; z-index:2">{{
+              content.getHeroValue('cta', lang.currentLang())
+            }}</span>
           </button>
         </div>
       </div>
@@ -130,9 +146,13 @@ interface FloatingFruit {
         z-index: 10;
         text-align: center;
         color: var(--text-primary);
+      }
+
+      :host-context(body.editor-preview) .hero-content {
         pointer-events: none;
       }
-      .hero-content * {
+
+      .hero-content > * {
         pointer-events: auto;
       }
 
@@ -384,4 +404,3 @@ export class HeroComponent implements OnInit {
     document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
   }
 }
-

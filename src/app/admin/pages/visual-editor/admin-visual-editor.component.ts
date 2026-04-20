@@ -30,7 +30,7 @@ import {
         <div class="panel-head">
           <div>
             <h2>Visual Editor</h2>
-            <p>Click any highlighted node inside the live preview.</p>
+            <p>Click any highlighted node inside the live portfolio preview.</p>
           </div>
           <div class="locale-switch">
             <button type="button" [class.active]="locale() === 'en'" (click)="setLocale('en')">
@@ -102,9 +102,15 @@ import {
 
       .panel,
       .preview-card {
-        border-radius: 22px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(18, 18, 18, 0.86);
+        border-radius: 26px;
+        border: 1px solid var(--border-color);
+        background: var(--card-bg) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition:
+          background 0.4s ease,
+          border-color 0.4s ease;
       }
 
       .panel {
@@ -118,6 +124,7 @@ import {
         display: flex;
         justify-content: space-between;
         gap: 14px;
+        align-items: flex-start;
       }
 
       h2,
@@ -125,10 +132,15 @@ import {
         margin: 0;
       }
 
+      h2 {
+        color: var(--text-primary);
+      }
+
       .panel-head p,
       .hint,
       .status {
-        color: rgba(255, 255, 255, 0.56);
+        color: var(--text-secondary);
+        font-size: 0.88rem;
       }
 
       .locale-switch,
@@ -143,52 +155,90 @@ import {
       .save-button {
         border: none;
         border-radius: 14px;
-        padding: 10px 12px;
+        padding: 8px 12px;
         cursor: pointer;
         font-weight: 700;
+        font: inherit;
+        font-weight: 700;
+        transition: all 0.25s ease;
       }
 
       .locale-switch button,
       .node-chip {
-        background: rgba(255, 255, 255, 0.05);
-        color: rgba(255, 255, 255, 0.72);
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        font-size: 0.82rem;
+      }
+
+      .locale-switch button:hover,
+      .node-chip:hover {
+        color: var(--text-primary);
+        border-color: rgba(245, 124, 0, 0.35);
       }
 
       .locale-switch button.active,
       .node-chip.active {
-        background: rgba(201, 169, 97, 0.18);
-        color: #f2ddb0;
+        background: rgba(245, 124, 0, 0.12);
+        border-color: rgba(245, 124, 0, 0.35);
+        color: var(--color-primary);
       }
 
       .editor-card,
       .empty-card {
         border-radius: 18px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
         padding: 16px;
+      }
+
+      .empty-card {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.6;
       }
 
       label {
         display: block;
         margin-bottom: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
       }
 
       input,
       textarea {
         width: 100%;
         border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(255, 255, 255, 0.04);
-        color: #fff;
+        border: 1px solid var(--border-color);
+        background: var(--card-bg);
+        color: var(--text-primary);
         padding: 12px 14px;
         font: inherit;
         resize: vertical;
+        transition:
+          border-color 0.25s ease,
+          background 0.4s ease;
+      }
+
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: rgba(245, 124, 0, 0.5);
       }
 
       .save-button {
         margin-top: 12px;
-        background: linear-gradient(135deg, #d7b970, #a37a36);
-        color: #101010;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        color: #fff;
+        width: 100%;
+        padding: 12px;
+        border-radius: 16px;
+      }
+
+      .save-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(245, 124, 0, 0.35);
       }
 
       .preview-card {
@@ -200,7 +250,7 @@ import {
         height: 100%;
         min-height: calc(100vh - 150px);
         border: none;
-        background: #fff;
+        background: var(--bg-primary);
       }
 
       @media (max-width: 1100px) {
@@ -224,7 +274,7 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
   readonly locale = signal<EditableLocale>('en');
   readonly selectedNodeId = signal<string | null>(null);
   readonly selectedValue = signal('');
-  readonly status = signal('Live preview writes to local mock storage.');
+  readonly status = signal('Live preview writes to local mock storage for the portfolio.');
   readonly nodes = signal<EditorNodeMeta[]>([]);
   readonly previewNonce = signal(0);
 
@@ -267,7 +317,7 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
   setLocale(locale: EditableLocale): void {
     this.locale.set(locale);
     this.previewNonce.set(Date.now());
-    this.status.set(`Reloaded preview in ${locale.toUpperCase()} mode.`);
+    this.status.set(`Reloaded portfolio preview in ${locale.toUpperCase()} mode.`);
   }
 
   selectNode(nodeId: string, providedValue?: string): void {
@@ -313,7 +363,7 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
-    this.status.set('Mock draft saved locally. Backend wiring comes next.');
+    this.status.set('Portfolio draft saved locally. Backend wiring comes next.');
   }
 
   onPreviewLoad(): void {

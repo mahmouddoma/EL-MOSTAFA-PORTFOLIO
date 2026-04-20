@@ -45,16 +45,24 @@ import { MockSiteContentService } from '../../core/services/mock-site-content.se
         <div class="d-none d-lg-flex align-items-center gap-4">
           <div class="links">
             <a href="#about" (click)="scrollTo('about', $event)">
-              <span data-edit-id="navbar.about" data-edit-label="Navbar About">{{ content.getNavbarLabel('about', lang.currentLang()) }}</span>
+              <span data-edit-id="navbar.about" data-edit-label="Navbar About">{{
+                content.getNavbarLabel('about', lang.currentLang())
+              }}</span>
             </a>
             <a href="#products" (click)="scrollTo('products', $event)">
-              <span data-edit-id="navbar.products" data-edit-label="Navbar Products">{{ content.getNavbarLabel('products', lang.currentLang()) }}</span>
+              <span data-edit-id="navbar.products" data-edit-label="Navbar Products">{{
+                content.getNavbarLabel('products', lang.currentLang())
+              }}</span>
             </a>
             <a href="#origins" (click)="scrollTo('origins', $event)">
-              <span data-edit-id="navbar.origins" data-edit-label="Navbar Origins">{{ content.getNavbarLabel('origins', lang.currentLang()) }}</span>
+              <span data-edit-id="navbar.origins" data-edit-label="Navbar Origins">{{
+                content.getNavbarLabel('origins', lang.currentLang())
+              }}</span>
             </a>
             <a href="#contact" (click)="scrollTo('contact', $event)">
-              <span data-edit-id="navbar.contact" data-edit-label="Navbar Contact">{{ content.getNavbarLabel('contact', lang.currentLang()) }}</span>
+              <span data-edit-id="navbar.contact" data-edit-label="Navbar Contact">{{
+                content.getNavbarLabel('contact', lang.currentLang())
+              }}</span>
             </a>
           </div>
 
@@ -62,12 +70,28 @@ import { MockSiteContentService } from '../../core/services/mock-site-content.se
 
           <!-- Toggles -->
           <div class="toggle-group">
-            <button class="icon-btn" (click)="theme.toggleTheme()" [title]="theme.isDarkMode() ? 'Light Mode' : 'Dark Mode'">
+            <button
+              class="icon-btn"
+              (click)="theme.toggleTheme()"
+              [title]="theme.isDarkMode() ? 'Light Mode' : 'Dark Mode'"
+            >
               <span class="btn-icon" [class.rotate]="theme.isDarkMode()">
                 @if (theme.isDarkMode()) {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5" />
+                    <line x1="12" y1="1" x2="12" y2="3" />
+                    <line x1="12" y1="21" x2="12" y2="23" />
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                    <line x1="1" y1="12" x2="3" y2="12" />
+                    <line x1="21" y1="12" x2="23" y2="12" />
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                  </svg>
                 } @else {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                  </svg>
                 }
               </span>
             </button>
@@ -87,33 +111,48 @@ import { MockSiteContentService } from '../../core/services/mock-site-content.se
 
         <!-- Mobile Controls -->
         <div class="d-flex d-lg-none align-items-center gap-2">
-           <button class="icon-btn" (click)="theme.toggleTheme()">
-              <span class="btn-icon">
-                 @if (theme.isDarkMode()) {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                } @else {
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                }
-              </span>
-           </button>
-           <button class="lang-btn" (click)="lang.toggleLanguage()">
-              <span class="lang-code">{{ lang.currentLang() === 'en' ? 'AR' : 'EN' }}</span>
-            </button>
-           <button class="menu-toggle" (click)="toggleMenu()" [class.active]="isMenuOpen()">
-              <span class="bar bar-1"></span>
-              <span class="bar bar-2"></span>
-              <span class="bar bar-3"></span>
-            </button>
+          <button class="icon-btn" (click)="theme.toggleTheme()">
+            <span class="btn-icon">
+              @if (theme.isDarkMode()) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <path
+                    d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                  />
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              }
+            </span>
+          </button>
+          <button class="lang-btn" (click)="lang.toggleLanguage()">
+            <span class="lang-code">{{ lang.currentLang() === 'en' ? 'AR' : 'EN' }}</span>
+          </button>
+          <button class="menu-toggle" (click)="toggleMenu()" [class.active]="isMenuOpen()">
+            <span class="bar bar-1"></span>
+            <span class="bar bar-2"></span>
+            <span class="bar bar-3"></span>
+          </button>
         </div>
       </div>
 
       <!-- Mobile Overlay Menu -->
-        <div class="mobile-overlay" [class.show]="isMenuOpen()">
+      <div class="mobile-overlay" [class.show]="isMenuOpen()">
         <div class="overlay-links">
-          <a href="#about" (click)="mobileNavigate('about', $event)">{{ content.getNavbarLabel('about', lang.currentLang()) }}</a>
-          <a href="#products" (click)="mobileNavigate('products', $event)">{{ content.getNavbarLabel('products', lang.currentLang()) }}</a>
-          <a href="#origins" (click)="mobileNavigate('origins', $event)">{{ content.getNavbarLabel('origins', lang.currentLang()) }}</a>
-          <a href="#contact" (click)="mobileNavigate('contact', $event)">{{ content.getNavbarLabel('contact', lang.currentLang()) }}</a>
+          <a href="#about" (click)="mobileNavigate('about', $event)">{{
+            content.getNavbarLabel('about', lang.currentLang())
+          }}</a>
+          <a href="#products" (click)="mobileNavigate('products', $event)">{{
+            content.getNavbarLabel('products', lang.currentLang())
+          }}</a>
+          <a href="#origins" (click)="mobileNavigate('origins', $event)">{{
+            content.getNavbarLabel('origins', lang.currentLang())
+          }}</a>
+          <a href="#contact" (click)="mobileNavigate('contact', $event)">{{
+            content.getNavbarLabel('contact', lang.currentLang())
+          }}</a>
           <a routerLink="/admin/login" (click)="toggleMenu()">Admin Login</a>
         </div>
       </div>
@@ -173,25 +212,31 @@ import { MockSiteContentService } from '../../core/services/mock-site-content.se
         left: -100%;
         width: 100%;
         height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.4),
-          transparent
-        );
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
         transition: none;
         animation: shine 5s infinite;
       }
 
       @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-8px); }
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
       }
 
       @keyframes shine {
-        0% { left: -100%; }
-        20% { left: 100%; }
-        100% { left: 100%; }
+        0% {
+          left: -100%;
+        }
+        20% {
+          left: 100%;
+        }
+        100% {
+          left: 100%;
+        }
       }
 
       .brand:hover .logo-img {
@@ -221,7 +266,8 @@ import { MockSiteContentService } from '../../core/services/mock-site-content.se
         border: 1px solid var(--border-color);
       }
 
-      .icon-btn, .lang-btn {
+      .icon-btn,
+      .lang-btn {
         background: transparent;
         border: none;
         color: var(--text-primary);
@@ -256,7 +302,8 @@ import { MockSiteContentService } from '../../core/services/mock-site-content.se
         height: 18px;
       }
 
-      .icon-btn:hover, .lang-btn:hover {
+      .icon-btn:hover,
+      .lang-btn:hover {
         background: var(--border-color);
         transform: translateY(-2px);
       }

@@ -145,15 +145,15 @@ export class PublicHomeComponent implements AfterViewInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
 
-    this.selectedEditorElement?.classList.remove('editor-node-selected');
-    editableNode.classList.add('editor-node-selected');
-    this.selectedEditorElement = editableNode;
-
     const nodeId = editableNode.dataset['editId'] ?? '';
     const isImage = editableNode.tagName === 'IMG';
     const value = isImage
       ? (editableNode.getAttribute('src') ?? '')
       : (editableNode.textContent ?? '').trim();
+
+    this.selectedEditorElement?.classList.remove('editor-node-selected');
+    editableNode.classList.add('editor-node-selected');
+    this.selectedEditorElement = editableNode;
 
     window.parent.postMessage(
       {

@@ -283,7 +283,7 @@ Response:
   "messagesCount": 12,
   "unreadMessagesCount": 3,
   "paymentsCount": 4,
-  "paidAmount": 1745.00,
+  "paidAmount": 1745.0,
   "currency": "EGP"
 }
 ```
@@ -337,9 +337,7 @@ Response item shape:
   "imageFilter": "none",
   "categoryKey": "stone",
   "originIds": ["origin-italy", "origin-greece"],
-  "varieties": [
-    { "id": "var-1", "nameEn": "Gala", "nameAr": "جالا", "sortOrder": 1 }
-  ],
+  "varieties": [{ "id": "var-1", "nameEn": "Gala", "nameAr": "جالا", "sortOrder": 1 }],
   "isFeatured": true,
   "isPublished": true,
   "sortOrder": 1
@@ -456,8 +454,18 @@ Response:
       { "sectionKey": "slice", "displayName": "Fruit Slice", "sortOrder": 3, "isVisible": true },
       { "sectionKey": "marquee", "displayName": "Marquee", "sortOrder": 4, "isVisible": true },
       { "sectionKey": "about", "displayName": "About", "sortOrder": 5, "isVisible": true },
-      { "sectionKey": "products", "displayName": "Products Header", "sortOrder": 6, "isVisible": true },
-      { "sectionKey": "origins", "displayName": "Origins Header", "sortOrder": 7, "isVisible": true },
+      {
+        "sectionKey": "products",
+        "displayName": "Products Header",
+        "sortOrder": 6,
+        "isVisible": true
+      },
+      {
+        "sectionKey": "origins",
+        "displayName": "Origins Header",
+        "sortOrder": 7,
+        "isVisible": true
+      },
       { "sectionKey": "whyUs", "displayName": "Why Us", "sortOrder": 8, "isVisible": true },
       { "sectionKey": "footer", "displayName": "Footer", "sortOrder": 9, "isVisible": true }
     ]

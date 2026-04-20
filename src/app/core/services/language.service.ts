@@ -97,6 +97,24 @@ export class LanguageService {
       common: {
         backToTop: 'Back to Top',
       },
+      admin: {
+        title: 'Portfolio Control Center',
+        subtitle: 'Content-first dashboard aligned with the public brand theme.',
+        sidebar: {
+          manage: 'Manage the same public sections, visuals, and messages shown on the portfolio.',
+          viewPortfolio: 'View Portfolio',
+          logout: 'Logout',
+        },
+        nav: {
+          dashboard: 'Dashboard',
+          showcase: 'Showcase',
+          origins: 'Origins',
+          sections: 'Sections',
+          siteContent: 'Site Content',
+          visualEditor: 'Visual Editor',
+          messages: 'Messages',
+        },
+      },
     },
     ar: {
       nav: {
@@ -183,6 +201,24 @@ export class LanguageService {
       common: {
         backToTop: 'العودة للأعلى',
       },
+      admin: {
+        title: 'مركز التحكم في المحافظ',
+        subtitle: 'لوحة تحكم تركز على المحتوى ومتوافقة مع سمة العلامة التجارية العامة.',
+        sidebar: {
+          manage: 'قم بإدارة نفس الأقسام العامة والمرئيات والرسائل المعروضة في المحفظة.',
+          viewPortfolio: 'رؤية المحفظة',
+          logout: 'تسجيل الخروج',
+        },
+        nav: {
+          dashboard: 'لوحة التحكم',
+          showcase: 'معرض الأعمال',
+          origins: 'المصادر',
+          sections: 'الأقسام',
+          siteContent: 'محتوى الموقع',
+          visualEditor: 'المحرر المرئي',
+          messages: 'الرسائل',
+        },
+      },
     },
   };
 
@@ -209,12 +245,18 @@ export class LanguageService {
     this.setLanguage(newLang);
   }
 
-  translate(path: string): string {
+  translateFor(lang: Language, path: string): string {
     const keys = path.split('.');
-    let value = this.translations[this.currentLang()];
+    let value = this.translations[lang];
+
     for (const key of keys) {
       if (value) value = value[key];
     }
+
     return value || path;
+  }
+
+  translate(path: string): string {
+    return this.translateFor(this.currentLang(), path);
   }
 }

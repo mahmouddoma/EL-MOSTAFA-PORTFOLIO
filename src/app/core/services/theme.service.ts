@@ -1,35 +1,46 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, effect, PLATFORM_ID, inject, computed } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+
+export type Theme = 'light' | 'dark';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ThemeService {
   private readonly THEME_KEY = 'elmostafa_theme';
-  readonly isDarkMode = signal<boolean>(false);
+  private readonly platformId = inject(PLATFORM_ID);
+
+  readonly currentTheme = signal<Theme>('dark');
+  readonly isDarkMode = computed(() => this.currentTheme() === 'dark');
 
   constructor() {
     this.initTheme();
+
+    effect(() => {
+      const theme = this.currentTheme();
+      if (isPlatformBrowser(this.platformId)) {
+        document.body.classList.toggle('dark-theme', theme === 'dark');
+        localStorage.setItem(this.THEME_KEY, theme);
+      }
+    });
   }
 
-  private initTheme() {
-    const savedTheme = localStorage.getItem(this.THEME_KEY);
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-      this.isDarkMode.set(true);
-      document.body.classList.add('dark-theme');
+  private initTheme(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const savedTheme = localStorage.getItem(this.THEME_KEY) as Theme;
+      if (savedTheme) {
+        this.currentTheme.set(savedTheme);
+      } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+      }
     }
   }
 
-  toggleTheme() {
-    this.isDarkMode.update(dark => !dark);
-    const theme = this.isDarkMode() ? 'dark' : 'light';
-    localStorage.setItem(this.THEME_KEY, theme);
-    
-    if (this.isDarkMode()) {
-      document.body.classList.add('dark-theme');
-    } else {
-      document.body.classList.remove('dark-theme');
-    }
+  setTheme(theme: Theme): void {
+    this.currentTheme.set(theme);
+  }
+
+  toggleTheme(): void {
+    const newTheme = this.currentTheme() === 'light' ? 'dark' : 'light';
+    this.setTheme(newTheme);
   }
 }

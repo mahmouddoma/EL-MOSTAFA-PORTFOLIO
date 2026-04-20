@@ -10,24 +10,49 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
     <section class="page">
       <div class="page-head">
         <div>
-          <h2>Products</h2>
-          <p>Mock product management UI until backend wiring is ready.</p>
+          <span class="eyebrow">Showcase Management</span>
+          <h2>Portfolio Showcase Library</h2>
+          <p>Manage the collection cards shown in the public portfolio grid.</p>
         </div>
-        <button type="button">+ Add Product</button>
+        <button type="button">+ Add Showcase Card</button>
+      </div>
+
+      <div class="summary-strip">
+        <div class="summary-item">
+          <strong>{{ liveCount }}</strong>
+          <span>Live cards</span>
+        </div>
+        <div class="summary-item">
+          <strong>{{ draftCount }}</strong>
+          <span>Draft cards</span>
+        </div>
+        <div class="summary-item">
+          <strong>{{ data.products.length }}</strong>
+          <span>Total managed cards</span>
+        </div>
       </div>
 
       <div class="card-grid">
         <article class="product-card" *ngFor="let product of data.products">
           <img [src]="product.imageUrl" [alt]="product.name" />
-          <div class="meta">
-            <span class="pill">{{ product.status }}</span>
-            <span class="category">{{ product.category }}</span>
-          </div>
-          <h3>{{ product.name }}</h3>
-          <p>{{ product.origin }}</p>
-          <div class="actions">
-            <button type="button" class="secondary">Edit</button>
-            <button type="button" class="danger">Delete</button>
+
+          <div class="content">
+            <div class="meta">
+              <span class="pill">{{ product.status }}</span>
+              <span class="category">{{ product.category }}</span>
+            </div>
+
+            <h3>{{ product.name }}</h3>
+            <p class="origin">{{ product.origin }}</p>
+            <p class="note">{{ product.note }}</p>
+
+            <div class="footer">
+              <small>Updated {{ product.updatedAt }}</small>
+              <div class="actions">
+                <button type="button" class="secondary">Edit Copy</button>
+                <button type="button" class="secondary">Update Image</button>
+              </div>
+            </div>
           </div>
         </article>
       </div>
@@ -43,31 +68,86 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
       .page-head {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        gap: 16px;
+        align-items: flex-end;
+        gap: 18px;
       }
 
-      h2 {
-        margin: 0 0 6px;
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 10px;
+        color: var(--color-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 0.8rem;
+        font-weight: 800;
       }
 
+      h2,
+      h3,
       p {
         margin: 0;
-        color: rgba(255, 255, 255, 0.56);
+      }
+
+      .page-head p,
+      .origin,
+      .note,
+      small {
+        color: var(--text-secondary);
       }
 
       .page-head button,
       .actions button {
         border: none;
-        border-radius: 14px;
+        border-radius: 16px;
         padding: 12px 16px;
         cursor: pointer;
         font-weight: 700;
+        font: inherit;
+        transition: all 0.25s ease;
       }
 
       .page-head button {
-        background: linear-gradient(135deg, #d7b970, #a37a36);
-        color: #0f0f0f;
+        color: #fff;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      }
+
+      .page-head button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(245, 124, 0, 0.35);
+      }
+
+      .summary-strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .summary-item,
+      .product-card {
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        background: var(--card-bg);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition:
+          background 0.4s ease,
+          border-color 0.4s ease;
+      }
+
+      .summary-item {
+        padding: 18px 20px;
+      }
+
+      .summary-item strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 2rem;
+        color: var(--text-primary);
+      }
+
+      .summary-item span {
+        color: var(--text-secondary);
       }
 
       .card-grid {
@@ -77,79 +157,96 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
       }
 
       .product-card {
-        border-radius: 22px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(18, 18, 18, 0.86);
         overflow: hidden;
       }
 
       img {
         width: 100%;
-        height: 220px;
+        height: 230px;
         object-fit: contain;
-        background: linear-gradient(180deg, rgba(201, 169, 97, 0.08), transparent);
-        padding: 24px;
+        background:
+          radial-gradient(circle at top, rgba(245, 124, 0, 0.08), transparent 54%),
+          var(--bg-surface);
+        padding: 26px;
+      }
+
+      .content {
+        display: grid;
+        gap: 14px;
+        padding: 18px 20px 20px;
       }
 
       .meta,
+      .footer,
       .actions {
         display: flex;
         justify-content: space-between;
         gap: 10px;
-      }
-
-      .meta {
-        padding: 18px 20px 0;
+        align-items: center;
       }
 
       .pill,
       .category {
         border-radius: 999px;
-        padding: 6px 10px;
-        font-size: 0.84rem;
+        padding: 5px 11px;
+        font-size: 0.82rem;
+        font-weight: 600;
       }
 
       .pill {
-        background: rgba(201, 169, 97, 0.14);
-        color: #e7cd95;
+        background: rgba(245, 124, 0, 0.12);
+        color: var(--color-primary);
       }
 
       .category {
-        background: rgba(255, 255, 255, 0.06);
-        color: rgba(255, 255, 255, 0.65);
+        background: var(--border-color);
+        color: var(--text-secondary);
       }
 
-      h3,
-      p,
+      .origin {
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      .note {
+        line-height: 1.6;
+      }
+
+      .footer {
+        align-items: flex-end;
+      }
+
       .actions {
-        padding-left: 20px;
-        padding-right: 20px;
-      }
-
-      h3 {
-        margin: 12px 0 6px;
-      }
-
-      .actions {
-        padding-bottom: 20px;
-        padding-top: 14px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
       }
 
       .actions .secondary {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
-        flex: 1;
+        color: var(--text-secondary);
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
       }
 
-      .actions .danger {
-        background: rgba(155, 41, 41, 0.3);
-        color: #ffb2b2;
-        flex: 1;
+      .actions .secondary:hover {
+        color: var(--text-primary);
+        border-color: rgba(245, 124, 0, 0.35);
       }
 
-      @media (max-width: 1100px) {
+      @media (max-width: 1180px) {
+        .summary-strip,
         .card-grid {
           grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .page-head,
+        .footer {
+          display: grid;
+          gap: 14px;
+        }
+        .actions {
+          justify-content: flex-start;
         }
       }
     `,
@@ -157,4 +254,6 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
 })
 export class AdminProductsComponent {
   readonly data = inject(MockAdminDataService);
+  readonly liveCount = this.data.products.filter((product) => product.status === 'Live').length;
+  readonly draftCount = this.data.products.filter((product) => product.status === 'Draft').length;
 }

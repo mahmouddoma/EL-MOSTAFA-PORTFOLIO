@@ -27,10 +27,24 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'products',
+        path: 'showcase',
         loadComponent: () =>
           import('./admin/pages/products/admin-products.component').then(
             (m) => m.AdminProductsComponent,
+          ),
+      },
+      {
+        path: 'origins',
+        loadComponent: () =>
+          import('./admin/pages/origins/admin-origins.component').then(
+            (m) => m.AdminOriginsComponent,
+          ),
+      },
+      {
+        path: 'sections',
+        loadComponent: () =>
+          import('./admin/pages/sections/admin-sections.component').then(
+            (m) => m.AdminSectionsComponent,
           ),
       },
       {
@@ -48,16 +62,19 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'products',
+        redirectTo: 'showcase',
+        pathMatch: 'full',
+      },
+      {
         path: 'orders',
-        loadComponent: () =>
-          import('./admin/pages/orders/admin-orders.component').then((m) => m.AdminOrdersComponent),
+        redirectTo: 'sections',
+        pathMatch: 'full',
       },
       {
         path: 'payments',
-        loadComponent: () =>
-          import('./admin/pages/payments/admin-payments.component').then(
-            (m) => m.AdminPaymentsComponent,
-          ),
+        redirectTo: 'origins',
+        pathMatch: 'full',
       },
       {
         path: 'messages',

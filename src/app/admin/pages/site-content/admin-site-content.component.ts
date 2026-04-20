@@ -5,12 +5,20 @@ import {
   EditableLocale,
   MockSiteContentService,
 } from '../../../core/services/mock-site-content.service';
+import {
+  EditorValueScope,
+  EditorValueType,
+  MockVisualEditorService,
+} from '../../../core/services/mock-visual-editor.service';
+import { LanguageService } from '../../../core/services/language.service';
 
 interface EditableField {
   nodeId: string;
   label: string;
   multiline?: boolean;
   localized?: boolean;
+  mode: 'site-content' | 'visual-override';
+  translationPath?: string;
 }
 
 interface EditableGroup {
@@ -27,14 +35,26 @@ interface EditableGroup {
     <section class="page">
       <div class="page-head">
         <div>
-          <h2>Site Content</h2>
-          <p>Edit the main portfolio copy with fake local persistence for now.</p>
+          <span class="eyebrow">Copy Studio</span>
+          <h2>Portfolio Content Management</h2>
+          <p>Edit public copy across the hero, story, showcase, trust, and footer sections.</p>
         </div>
+
         <div class="toolbar">
-          <button type="button" class="ghost" (click)="setLocale('en')" [class.active]="locale() === 'en'">
+          <button
+            type="button"
+            class="ghost"
+            (click)="setLocale('en')"
+            [class.active]="locale() === 'en'"
+          >
             EN
           </button>
-          <button type="button" class="ghost" (click)="setLocale('ar')" [class.active]="locale() === 'ar'">
+          <button
+            type="button"
+            class="ghost"
+            (click)="setLocale('ar')"
+            [class.active]="locale() === 'ar'"
+          >
             AR
           </button>
           <button type="button" class="primary" (click)="saveChanges()">Save Changes</button>
@@ -81,49 +101,79 @@ interface EditableGroup {
         gap: 18px;
       }
 
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 10px;
+        color: var(--color-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 0.8rem;
+        font-weight: 800;
+      }
+
       h2,
       h3,
       p {
         margin: 0;
       }
 
+      h2 {
+        color: var(--text-primary);
+      }
+
       .page-head p,
-      .group-head p {
-        color: rgba(255, 255, 255, 0.56);
+      .group-head p,
+      .notice,
+      .field span {
+        color: var(--text-secondary);
       }
 
       .toolbar {
         display: flex;
         align-items: center;
         gap: 10px;
+        flex-wrap: wrap;
       }
 
       button {
         border: none;
-        border-radius: 14px;
+        border-radius: 16px;
         padding: 12px 16px;
         cursor: pointer;
+        font: inherit;
         font-weight: 700;
+        transition: all 0.25s ease;
       }
 
       .ghost {
-        background: rgba(255, 255, 255, 0.05);
-        color: rgba(255, 255, 255, 0.7);
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+      }
+
+      .ghost:hover {
+        color: var(--text-primary);
+        border-color: rgba(245, 124, 0, 0.35);
       }
 
       .ghost.active {
-        background: rgba(201, 169, 97, 0.18);
-        color: #f2ddb0;
+        background: rgba(245, 124, 0, 0.12);
+        border-color: rgba(245, 124, 0, 0.35);
+        color: var(--color-primary);
       }
 
       .primary {
-        background: linear-gradient(135deg, #d7b970, #a37a36);
-        color: #101010;
+        color: #fff;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      }
+
+      .primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(245, 124, 0, 0.35);
       }
 
       .notice {
         min-height: 24px;
-        color: #d7b970;
       }
 
       .group-grid {
@@ -132,14 +182,24 @@ interface EditableGroup {
       }
 
       .group-card {
-        border-radius: 22px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(18, 18, 18, 0.86);
+        border-radius: 26px;
+        border: 1px solid var(--border-color);
+        background: var(--card-bg);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition:
+          background 0.4s ease,
+          border-color 0.4s ease;
         padding: 22px;
       }
 
       .group-head {
         margin-bottom: 18px;
+      }
+
+      .group-head h3 {
+        color: var(--text-primary);
       }
 
       .field-grid {
@@ -154,32 +214,37 @@ interface EditableGroup {
       }
 
       .field span {
-        color: rgba(255, 255, 255, 0.72);
-        font-size: 0.92rem;
+        font-size: 0.85rem;
+        font-weight: 600;
       }
 
       input,
       textarea {
         width: 100%;
         border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(255, 255, 255, 0.04);
-        color: #fff;
+        border: 1px solid var(--border-color);
+        background: var(--bg-surface);
+        color: var(--text-primary);
         padding: 14px 16px;
         font: inherit;
         resize: vertical;
+        transition:
+          border-color 0.25s ease,
+          background 0.4s ease;
+      }
+
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: rgba(245, 124, 0, 0.5);
+        background: var(--card-bg);
       }
 
       @media (max-width: 960px) {
         .page-head,
         .field-grid {
-          grid-template-columns: 1fr;
           display: grid;
-        }
-
-        .toolbar {
-          justify-content: flex-start;
-          flex-wrap: wrap;
+          grid-template-columns: 1fr;
         }
       }
     `,
@@ -187,45 +252,181 @@ interface EditableGroup {
 })
 export class AdminSiteContentComponent implements OnInit {
   readonly locale = signal<EditableLocale>('en');
-  readonly notice = signal('Editing local fake content. Save writes to localStorage.');
+  readonly notice = signal(
+    'Content edits save locally and feed either the public copy store or the visual override layer.',
+  );
 
   readonly groups: EditableGroup[] = [
     {
-      title: 'Navbar',
-      description: 'Top navigation labels shown on the public portfolio.',
+      title: 'Navigation And Hero',
+      description: 'Top navigation labels and first-fold portfolio messaging.',
       fields: [
-        { nodeId: 'navbar.about', label: 'About Label' },
-        { nodeId: 'navbar.products', label: 'Products Label' },
-        { nodeId: 'navbar.origins', label: 'Origins Label' },
-        { nodeId: 'navbar.contact', label: 'Contact Label' },
+        { nodeId: 'navbar.about', label: 'About Label', mode: 'site-content' },
+        { nodeId: 'navbar.products', label: 'Showcase Label', mode: 'site-content' },
+        { nodeId: 'navbar.origins', label: 'Origins Label', mode: 'site-content' },
+        { nodeId: 'navbar.contact', label: 'Contact Label', mode: 'site-content' },
+        { nodeId: 'hero.eyebrow', label: 'Hero Eyebrow', mode: 'site-content' },
+        { nodeId: 'hero.title', label: 'Hero Title', mode: 'site-content' },
+        {
+          nodeId: 'hero.subtitle',
+          label: 'Hero Subtitle',
+          mode: 'site-content',
+          multiline: true,
+        },
+        { nodeId: 'hero.cta', label: 'Hero CTA', mode: 'site-content' },
       ],
     },
     {
-      title: 'Hero',
-      description: 'Main hero copy shown in the first fold.',
+      title: 'Story Timeline',
+      description: 'Narrative copy for the journey section and its three nodes.',
       fields: [
-        { nodeId: 'hero.eyebrow', label: 'Eyebrow' },
-        { nodeId: 'hero.title', label: 'Title' },
-        { nodeId: 'hero.subtitle', label: 'Subtitle', multiline: true },
-        { nodeId: 'hero.cta', label: 'CTA Label' },
+        {
+          nodeId: 'about.eyebrow',
+          label: 'Story Eyebrow',
+          mode: 'visual-override',
+          translationPath: 'hero.story',
+        },
+        {
+          nodeId: 'about.title',
+          label: 'Story Title',
+          mode: 'visual-override',
+          translationPath: 'hero.journey',
+        },
+        {
+          nodeId: 'about.subtitle',
+          label: 'Story Subtitle',
+          mode: 'visual-override',
+          translationPath: 'hero.scroll',
+        },
+        {
+          nodeId: 'about.node1.title',
+          label: 'Story Node 1 Title',
+          mode: 'visual-override',
+          translationPath: 'about.nodes.0.title',
+        },
+        {
+          nodeId: 'about.node1.desc',
+          label: 'Story Node 1 Description',
+          mode: 'visual-override',
+          translationPath: 'about.nodes.0.desc',
+          multiline: true,
+        },
+        {
+          nodeId: 'about.node2.title',
+          label: 'Story Node 2 Title',
+          mode: 'visual-override',
+          translationPath: 'about.nodes.1.title',
+        },
+        {
+          nodeId: 'about.node2.desc',
+          label: 'Story Node 2 Description',
+          mode: 'visual-override',
+          translationPath: 'about.nodes.1.desc',
+          multiline: true,
+        },
+        {
+          nodeId: 'about.node3.title',
+          label: 'Story Node 3 Title',
+          mode: 'visual-override',
+          translationPath: 'about.nodes.2.title',
+        },
+        {
+          nodeId: 'about.node3.desc',
+          label: 'Story Node 3 Description',
+          mode: 'visual-override',
+          translationPath: 'about.nodes.2.desc',
+          multiline: true,
+        },
       ],
     },
     {
-      title: 'Footer / Contact',
-      description: 'Editable contact information and footer brand copy.',
+      title: 'Section Headlines',
+      description: 'Headings and subtitles for the showcase, origins, and trust sections.',
       fields: [
-        { nodeId: 'footer.brandText', label: 'Brand Text', localized: false },
-        { nodeId: 'footer.description', label: 'Description', multiline: true },
-        { nodeId: 'footer.address', label: 'Address' },
-        { nodeId: 'footer.email', label: 'Email', localized: false },
-        { nodeId: 'footer.phone', label: 'Phone', localized: false },
+        {
+          nodeId: 'products.eyebrow',
+          label: 'Showcase Eyebrow',
+          mode: 'visual-override',
+          translationPath: 'products.eyebrow',
+        },
+        {
+          nodeId: 'products.title',
+          label: 'Showcase Title',
+          mode: 'visual-override',
+          translationPath: 'products.title',
+        },
+        {
+          nodeId: 'products.subtitle',
+          label: 'Showcase Subtitle',
+          mode: 'visual-override',
+          translationPath: 'products.subtitle',
+          multiline: true,
+        },
+        {
+          nodeId: 'origins.eyebrow',
+          label: 'Origins Eyebrow',
+          mode: 'visual-override',
+          translationPath: 'origins.eyebrow',
+        },
+        {
+          nodeId: 'origins.title',
+          label: 'Origins Title',
+          mode: 'visual-override',
+          translationPath: 'origins.title',
+        },
+        {
+          nodeId: 'origins.subtitle',
+          label: 'Origins Subtitle',
+          mode: 'visual-override',
+          translationPath: 'origins.subtitle',
+          multiline: true,
+        },
+        {
+          nodeId: 'whyUs.eyebrow',
+          label: 'Why Us Eyebrow',
+          mode: 'visual-override',
+          translationPath: 'whyUs.eyebrow',
+        },
+        {
+          nodeId: 'whyUs.title',
+          label: 'Why Us Title',
+          mode: 'visual-override',
+          translationPath: 'whyUs.title',
+        },
+        {
+          nodeId: 'whyUs.subtitle',
+          label: 'Why Us Subtitle',
+          mode: 'visual-override',
+          translationPath: 'whyUs.subtitle',
+          multiline: true,
+        },
+      ],
+    },
+    {
+      title: 'Footer And Contact',
+      description: 'Brand text and contact details displayed at the bottom of the page.',
+      fields: [
+        { nodeId: 'footer.brandText', label: 'Brand Text', localized: false, mode: 'site-content' },
+        {
+          nodeId: 'footer.description',
+          label: 'Footer Description',
+          mode: 'site-content',
+          multiline: true,
+        },
+        { nodeId: 'footer.address', label: 'Address', mode: 'site-content' },
+        { nodeId: 'footer.email', label: 'Email', localized: false, mode: 'site-content' },
+        { nodeId: 'footer.phone', label: 'Phone', localized: false, mode: 'site-content' },
       ],
     },
   ];
 
   draft: Record<string, string> = {};
 
-  constructor(private readonly content: MockSiteContentService) {}
+  constructor(
+    private readonly content: MockSiteContentService,
+    private readonly visualEditor: MockVisualEditorService,
+    private readonly language: LanguageService,
+  ) {}
 
   ngOnInit(): void {
     this.loadDraft();
@@ -240,12 +441,25 @@ export class AdminSiteContentComponent implements OnInit {
     for (const group of this.groups) {
       for (const field of group.fields) {
         const value = this.draft[field.nodeId] ?? '';
-        const locale = field.localized === false ? 'en' : this.locale();
-        this.content.setValue(field.nodeId, locale, value);
+
+        if (field.mode === 'site-content') {
+          const locale = field.localized === false ? 'en' : this.locale();
+          this.content.setValue(field.nodeId, locale, value);
+          continue;
+        }
+
+        this.visualEditor.saveOverride(
+          field.nodeId,
+          value,
+          this.getOverrideType(field),
+          this.getOverrideScope(field),
+        );
       }
     }
 
-    this.notice.set(`Saved ${this.locale().toUpperCase()} content locally. Public preview updates immediately.`);
+    this.notice.set(
+      `Saved ${this.locale().toUpperCase()} portfolio copy. Public preview reads the updates immediately.`,
+    );
   }
 
   private loadDraft(): void {
@@ -253,11 +467,40 @@ export class AdminSiteContentComponent implements OnInit {
 
     for (const group of this.groups) {
       for (const field of group.fields) {
-        const locale = field.localized === false ? 'en' : this.locale();
-        nextDraft[field.nodeId] = this.content.getValue(field.nodeId, locale);
+        if (field.mode === 'site-content') {
+          const locale = field.localized === false ? 'en' : this.locale();
+          nextDraft[field.nodeId] = this.content.getValue(field.nodeId, locale);
+          continue;
+        }
+
+        nextDraft[field.nodeId] = this.getVisualOverrideValue(field);
       }
     }
 
     this.draft = nextDraft;
+  }
+
+  private getVisualOverrideValue(field: EditableField): string {
+    const overrides = this.visualEditor.overrides();
+    const key = `${this.getOverrideScope(field)}::${field.nodeId}`;
+    const override = overrides[key];
+
+    if (override) {
+      return override.value;
+    }
+
+    if (field.translationPath) {
+      return this.language.translateFor(this.locale(), field.translationPath);
+    }
+
+    return '';
+  }
+
+  private getOverrideScope(field: EditableField): EditorValueScope {
+    return field.localized === false ? 'global' : this.locale();
+  }
+
+  private getOverrideType(field: EditableField): EditorValueType {
+    return field.multiline ? 'textarea' : 'text';
   }
 }
