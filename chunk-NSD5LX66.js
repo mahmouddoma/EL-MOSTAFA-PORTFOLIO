@@ -1,0 +1,1 @@
+import{c as r}from"./chunk-AUQTST2K.js";import{Ac as o,V as s,_ as a}from"./chunk-5Z53DY5I.js";var n=class e{http=a(o);url=`${r}/messages`;submitMessage(t){return this.http.post(this.url,t)}getMessages(){return this.http.get(this.url)}static \u0275fac=function(i){return new(i||e)};static \u0275prov=s({token:e,factory:e.\u0275fac,providedIn:"root"})};export{n as a};

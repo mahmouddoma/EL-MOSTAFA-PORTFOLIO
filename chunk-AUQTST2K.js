@@ -1,0 +1,1 @@
+var o={production:!0,apiRootUrl:"https://elmostafaportfolio.somee.com/api",apiV1BaseUrl:"https://elmostafaportfolio.somee.com/api/v1",useAdminMockFallback:!1};var r=o.apiRootUrl,t=o.apiV1BaseUrl,a=t;export{o as a,r as b,t as c,a as d};

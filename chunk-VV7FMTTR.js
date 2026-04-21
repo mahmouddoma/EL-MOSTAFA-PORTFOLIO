@@ -1,1 +1,0 @@
-import{b as a}from"./chunk-LRSXKVCF.js";import{V as e,_ as n,wc as o}from"./chunk-AAV4N2LC.js";var p=class i{http=n(o);url=`${a}/origins`;getOrigins(){return this.http.get(this.url)}updateOrigin(t,r){return this.http.put(`${this.url}/${t}`,r)}static \u0275fac=function(r){return new(r||i)};static \u0275prov=e({token:i,factory:i.\u0275fac,providedIn:"root"})};export{p as a};
