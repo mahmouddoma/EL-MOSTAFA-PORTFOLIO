@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MockAdminDataService } from '../../core/services/mock-admin-data.service';
+import { MessagesApiService } from '../../../core/services/messages-api.service';
+import { AdminMessage } from '../../../core/models/message.model';
 
 @Component({
   selector: 'app-admin-messages',
@@ -16,8 +17,16 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
         </div>
       </div>
 
-      <div class="message-grid">
-        <article class="message-card" *ngFor="let message of data.messages">
+      <div *ngIf="loading()" class="loading-state">
+        <p>Loading messages...</p>
+      </div>
+
+      <div *ngIf="!loading() && messages().length === 0" class="empty-state">
+        <p>No messages found in the inbox.</p>
+      </div>
+
+      <div class="message-grid" *ngIf="!loading() && messages().length > 0">
+        <article class="message-card" *ngFor="let message of messages()">
           <div class="message-top">
             <div>
               <h3>{{ message.name }}</h3>
@@ -30,7 +39,7 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
           <p class="summary">{{ message.summary }}</p>
 
           <div class="message-footer">
-            <span>{{ message.date }}</span>
+            <span>{{ message.createdAt | date:'medium' }}</span>
             <button type="button">Open Thread</button>
           </div>
         </article>
@@ -58,8 +67,17 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
       .page-head p,
       .message-top span,
       .summary,
-      .message-footer span {
+      .message-footer span,
+      .loading-state,
+      .empty-state {
         color: var(--text-secondary);
+      }
+
+      .loading-state, .empty-state {
+        padding: 40px;
+        text-align: center;
+        border: 1px dashed var(--border-color);
+        border-radius: 26px;
       }
 
       .message-grid {
@@ -136,6 +154,26 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
     `,
   ],
 })
-export class AdminMessagesComponent {
-  readonly data = inject(MockAdminDataService);
+export class AdminMessagesComponent implements OnInit {
+  private readonly messagesApi = inject(MessagesApiService);
+
+  readonly messages = signal<AdminMessage[]>([]);
+  readonly loading = signal(true);
+
+  ngOnInit(): void {
+    this.loadMessages();
+  }
+
+  loadMessages(): void {
+    this.loading.set(true);
+    this.messagesApi.getMessages().subscribe({
+      next: (data) => {
+        this.messages.set(data);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      }
+    });
+  }
 }

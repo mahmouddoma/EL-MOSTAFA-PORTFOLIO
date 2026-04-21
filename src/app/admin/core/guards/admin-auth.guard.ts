@@ -1,9 +1,9 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { MockAdminAuthService } from '../services/mock-admin-auth.service';
+import { AdminAuthService } from '../services/admin-auth.service';
 
 export const adminAuthGuard: CanActivateFn = () => {
-  const auth = inject(MockAdminAuthService);
+  const auth = inject(AdminAuthService);
   const router = inject(Router);
 
   if (auth.isAuthenticated()) {

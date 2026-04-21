@@ -12,6 +12,10 @@ export class ProductMapper {
       description_ar: json.description_ar,
       category: json.category as ProductCategory,
       imageUrl: json.imageUrl,
+      imageFilter: json.imageFilter ?? json.image_filter,
+      status: json.status,
+      updatedAt: json.updatedAt,
+      note: json.note,
     };
   }
 }

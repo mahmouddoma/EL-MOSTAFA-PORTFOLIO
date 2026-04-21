@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   EditableLocale,
-  MockSiteContentService,
-} from '../../../core/services/mock-site-content.service';
+  SiteContentService,
+} from '../../../core/services/site-content.service';
 import {
   EditorValueScope,
   EditorValueType,
-  MockVisualEditorService,
-} from '../../../core/services/mock-visual-editor.service';
+  VisualEditorService,
+} from '../../../core/services/visual-editor.service';
 import { LanguageService } from '../../../core/services/language.service';
 
 interface EditableField {
@@ -423,8 +423,8 @@ export class AdminSiteContentComponent implements OnInit {
   draft: Record<string, string> = {};
 
   constructor(
-    private readonly content: MockSiteContentService,
-    private readonly visualEditor: MockVisualEditorService,
+    private readonly content: SiteContentService,
+    private readonly visualEditor: VisualEditorService,
     private readonly language: LanguageService,
   ) {}
 

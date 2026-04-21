@@ -1,9 +1,17 @@
-import { Directive, ElementRef, OnInit, OnDestroy, Inject, PLATFORM_ID, Input } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  OnInit,
+  OnDestroy,
+  Inject,
+  PLATFORM_ID,
+  Input,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 @Directive({
   selector: '[appScrollReveal]',
-  standalone: true
+  standalone: true,
 })
 export class ScrollRevealDirective implements OnInit, OnDestroy {
   @Input() threshold = 0.1;
@@ -13,7 +21,7 @@ export class ScrollRevealDirective implements OnInit, OnDestroy {
 
   constructor(
     private el: ElementRef,
-    @Inject(PLATFORM_ID) platformId: Object
+    @Inject(PLATFORM_ID) platformId: Object,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
     this.el.nativeElement.classList.add('premium-reveal-hidden');
@@ -21,14 +29,17 @@ export class ScrollRevealDirective implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.isBrowser) {
-      this.observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            this.el.nativeElement.classList.add('visible');
-            this.observer?.unobserve(this.el.nativeElement);
-          }
-        });
-      }, { threshold: this.threshold, rootMargin: this.rootMargin });
+      this.observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              this.el.nativeElement.classList.add('visible');
+              this.observer?.unobserve(this.el.nativeElement);
+            }
+          });
+        },
+        { threshold: this.threshold, rootMargin: this.rootMargin },
+      );
 
       this.observer.observe(this.el.nativeElement);
     }

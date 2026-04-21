@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 import { LanguageService } from '../../core/services/language.service';
-import { MockSiteContentService } from '../../core/services/mock-site-content.service';
+import { SiteContentService } from '../../core/services/site-content.service';
 
 @Component({
   selector: 'app-footer',
@@ -155,5 +155,5 @@ import { MockSiteContentService } from '../../core/services/mock-site-content.se
 export class FooterComponent {
   currentYear = new Date().getFullYear();
   lang = inject(LanguageService);
-  content = inject(MockSiteContentService);
+  content = inject(SiteContentService);
 }

@@ -2,7 +2,9 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MockAdminAuthService } from '../../core/services/mock-admin-auth.service';
+import { AdminAuthService } from '../../core/services/admin-auth.service';
+
+type AuthMode = 'code' | 'password';
 
 @Component({
   selector: 'app-admin-login',
@@ -14,11 +16,29 @@ import { MockAdminAuthService } from '../../core/services/mock-admin-auth.servic
         <div class="badge">Portfolio Admin</div>
         <h1>Portfolio Dashboard Login</h1>
         <p class="intro">
-          Mock authentication is active now. Use any email, then enter code
-          <strong>123456</strong>.
+          Sign in with a verification code or the admin password assigned by the backend.
         </p>
 
-        <div *ngIf="step() === 1" class="form-block">
+        <div class="auth-tabs">
+          <button
+            type="button"
+            class="tab-button"
+            [class.active]="mode() === 'code'"
+            (click)="setMode('code')"
+          >
+            Code
+          </button>
+          <button
+            type="button"
+            class="tab-button"
+            [class.active]="mode() === 'password'"
+            (click)="setMode('password')"
+          >
+            Password
+          </button>
+        </div>
+
+        <div *ngIf="mode() === 'code' && step() === 1" class="form-block">
           <label>Email</label>
           <input [(ngModel)]="email" type="email" placeholder="admin@company.com" />
           <button type="button" (click)="requestCode()" [disabled]="loading()">
@@ -26,13 +46,23 @@ import { MockAdminAuthService } from '../../core/services/mock-admin-auth.servic
           </button>
         </div>
 
-        <div *ngIf="step() === 2" class="form-block">
+        <div *ngIf="mode() === 'code' && step() === 2" class="form-block">
           <label>Verification Code</label>
-          <input [(ngModel)]="code" type="text" maxlength="6" placeholder="123456" />
+          <input [(ngModel)]="code" type="text" maxlength="6" placeholder="911146" />
           <button type="button" (click)="verifyCode()" [disabled]="loading()">
             {{ loading() ? 'Checking...' : 'Login to Dashboard' }}
           </button>
           <button type="button" class="ghost" (click)="step.set(1)">Back</button>
+        </div>
+
+        <div *ngIf="mode() === 'password'" class="form-block">
+          <label>Email</label>
+          <input [(ngModel)]="email" type="email" placeholder="admin@company.com" />
+          <label>Password</label>
+          <input [(ngModel)]="password" type="password" placeholder="Password" />
+          <button type="button" (click)="loginWithPassword()" [disabled]="loading()">
+            {{ loading() ? 'Checking...' : 'Login' }}
+          </button>
         </div>
 
         <p *ngIf="message()" class="message">{{ message() }}</p>
@@ -99,6 +129,17 @@ import { MockAdminAuthService } from '../../core/services/mock-admin-auth.servic
         margin-bottom: 24px;
       }
 
+      .auth-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 18px;
+        padding: 6px;
+        border-radius: 18px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-surface);
+      }
+
       .form-block {
         display: grid;
         gap: 12px;
@@ -158,6 +199,24 @@ import { MockAdminAuthService } from '../../core/services/mock-admin-auth.servic
         border: 1px solid var(--border-color);
       }
 
+      button.tab-button {
+        padding: 10px 12px;
+        border-radius: 12px;
+        color: var(--text-secondary);
+        background: transparent;
+        box-shadow: none;
+      }
+
+      button.tab-button.active {
+        color: #fff;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      }
+
+      button.tab-button:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
       button.ghost:hover {
         color: var(--text-primary);
         border-color: rgba(245, 124, 0, 0.35);
@@ -187,15 +246,17 @@ import { MockAdminAuthService } from '../../core/services/mock-admin-auth.servic
   ],
 })
 export class AdminLoginComponent {
-  private readonly auth = inject(MockAdminAuthService);
+  private readonly auth = inject(AdminAuthService);
   private readonly router = inject(Router);
 
+  readonly mode = signal<AuthMode>('code');
   readonly step = signal<1 | 2>(1);
   readonly loading = signal(false);
   readonly message = signal('');
 
   email = '';
   code = '';
+  password = '';
 
   constructor() {
     if (this.auth.isAuthenticated()) {
@@ -203,15 +264,21 @@ export class AdminLoginComponent {
     }
   }
 
+  setMode(mode: AuthMode): void {
+    this.mode.set(mode);
+    this.step.set(1);
+    this.message.set('');
+  }
+
   requestCode(): void {
     this.loading.set(true);
     this.message.set('');
 
     this.auth.requestCode(this.email).subscribe({
-      next: () => {
+      next: (response) => {
         this.loading.set(false);
         this.step.set(2);
-        this.message.set('Demo code sent. Use 123456.');
+        this.message.set(response.message || 'Verification code sent successfully.');
       },
       error: (error: Error) => {
         this.loading.set(false);
@@ -225,6 +292,22 @@ export class AdminLoginComponent {
     this.message.set('');
 
     this.auth.verifyCode(this.email, this.code).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.router.navigateByUrl('/admin/dashboard');
+      },
+      error: (error: Error) => {
+        this.loading.set(false);
+        this.message.set(error.message);
+      },
+    });
+  }
+
+  loginWithPassword(): void {
+    this.loading.set(true);
+    this.message.set('');
+
+    this.auth.login(this.email, this.password).subscribe({
       next: () => {
         this.loading.set(false);
         this.router.navigateByUrl('/admin/dashboard');

@@ -16,4 +16,7 @@ export interface Product {
   description: string;
   description_ar?: string;
   category: ProductCategory;
+  status?: string;
+  updatedAt?: string;
+  note?: string;
 }

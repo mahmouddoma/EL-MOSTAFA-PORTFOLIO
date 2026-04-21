@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MockAdminDataService } from '../../core/services/mock-admin-data.service';
+import { PortfolioProductsApiService } from '../../../core/services/portfolio-products-api.service';
+import { PortfolioProductApi } from '../../../core/models/portfolio-product.model';
 
 @Component({
   selector: 'app-admin-products',
@@ -17,45 +18,55 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
         <button type="button">+ Add Showcase Card</button>
       </div>
 
-      <div class="summary-strip">
-        <div class="summary-item">
-          <strong>{{ liveCount }}</strong>
-          <span>Live cards</span>
-        </div>
-        <div class="summary-item">
-          <strong>{{ draftCount }}</strong>
-          <span>Draft cards</span>
-        </div>
-        <div class="summary-item">
-          <strong>{{ data.products.length }}</strong>
-          <span>Total managed cards</span>
-        </div>
+      <div *ngIf="loading()" class="loading-state">
+        <p>Loading products...</p>
       </div>
 
-      <div class="card-grid">
-        <article class="product-card" *ngFor="let product of data.products">
-          <img [src]="product.imageUrl" [alt]="product.name" />
+      <ng-container *ngIf="!loading()">
+        <div class="summary-strip">
+          <div class="summary-item">
+            <strong>{{ liveCount() }}</strong>
+            <span>Live cards</span>
+          </div>
+          <div class="summary-item">
+            <strong>{{ draftCount() }}</strong>
+            <span>Draft cards</span>
+          </div>
+          <div class="summary-item">
+            <strong>{{ products().length }}</strong>
+            <span>Total managed cards</span>
+          </div>
+        </div>
 
-          <div class="content">
-            <div class="meta">
-              <span class="pill">{{ product.status }}</span>
-              <span class="category">{{ product.category }}</span>
-            </div>
+        <div *ngIf="products().length === 0" class="empty-state">
+          <p>No products found in the showcase library.</p>
+        </div>
 
-            <h3>{{ product.name }}</h3>
-            <p class="origin">{{ product.origin }}</p>
-            <p class="note">{{ product.note }}</p>
+        <div class="card-grid" *ngIf="products().length > 0">
+          <article class="product-card" *ngFor="let product of products()">
+            <img [src]="product.imageUrl" [alt]="product.name" />
 
-            <div class="footer">
-              <small>Updated {{ product.updatedAt }}</small>
-              <div class="actions">
-                <button type="button" class="secondary">Edit Copy</button>
-                <button type="button" class="secondary">Update Image</button>
+            <div class="content">
+              <div class="meta">
+                <span class="pill">{{ product.status }}</span>
+                <span class="category">{{ product.category }}</span>
+              </div>
+
+              <h3>{{ product.name }}</h3>
+              <p class="origin">{{ product.origin.join(', ') }}</p>
+              <p class="note">{{ product.note }}</p>
+
+              <div class="footer">
+                <small>Updated {{ product.updatedAt | date:'mediumDate' }}</small>
+                <div class="actions">
+                  <button type="button" class="secondary">Edit Copy</button>
+                  <button type="button" class="secondary">Update Image</button>
+                </div>
               </div>
             </div>
-          </div>
-        </article>
-      </div>
+          </article>
+        </div>
+      </ng-container>
     </section>
   `,
   styles: [
@@ -91,8 +102,17 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
       .page-head p,
       .origin,
       .note,
-      small {
+      small,
+      .loading-state,
+      .empty-state {
         color: var(--text-secondary);
+      }
+
+      .loading-state, .empty-state {
+        padding: 40px;
+        text-align: center;
+        border: 1px dashed var(--border-color);
+        border-radius: 26px;
       }
 
       .page-head button,
@@ -252,8 +272,33 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
     `,
   ],
 })
-export class AdminProductsComponent {
-  readonly data = inject(MockAdminDataService);
-  readonly liveCount = this.data.products.filter((product) => product.status === 'Live').length;
-  readonly draftCount = this.data.products.filter((product) => product.status === 'Draft').length;
+export class AdminProductsComponent implements OnInit {
+  private readonly productsApi = inject(PortfolioProductsApiService);
+
+  readonly products = signal<PortfolioProductApi[]>([]);
+  readonly loading = signal(true);
+
+  readonly liveCount = computed(() =>
+    this.products().filter((p) => p.status === 'Live').length
+  );
+  readonly draftCount = computed(() =>
+    this.products().filter((p) => p.status === 'Draft' || p.status === 'Hidden').length
+  );
+
+  ngOnInit(): void {
+    this.loadProducts();
+  }
+
+  loadProducts(): void {
+    this.loading.set(true);
+    this.productsApi.getProducts().subscribe({
+      next: (data) => {
+        this.products.set(data);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      }
+    });
+  }
 }

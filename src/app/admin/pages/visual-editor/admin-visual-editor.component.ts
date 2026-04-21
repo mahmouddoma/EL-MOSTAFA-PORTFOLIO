@@ -11,14 +11,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import {
-  EditableLocale,
-  MockSiteContentService,
-} from '../../../core/services/mock-site-content.service';
-import {
-  EditorNodeMeta,
-  MockVisualEditorService,
-} from '../../../core/services/mock-visual-editor.service';
+import { EditableLocale, SiteContentService } from '../../../core/services/site-content.service';
+import { EditorNodeMeta, VisualEditorService } from '../../../core/services/visual-editor.service';
 
 @Component({
   selector: 'app-admin-visual-editor',
@@ -267,8 +261,8 @@ import {
 })
 export class AdminVisualEditorComponent implements OnInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
-  private readonly visualEditor = inject(MockVisualEditorService);
-  private readonly siteContent = inject(MockSiteContentService);
+  private readonly visualEditor = inject(VisualEditorService);
+  private readonly siteContent = inject(SiteContentService);
 
   @ViewChild('previewFrame') previewFrame?: ElementRef<HTMLIFrameElement>;
   readonly locale = signal<EditableLocale>('en');
@@ -323,8 +317,7 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
   selectNode(nodeId: string, providedValue?: string): void {
     this.selectedNodeId.set(nodeId);
 
-    // Prioritize MockSiteContentService for known nodes
-    if (this.isMockSiteContentNode(nodeId)) {
+    if (this.isSiteContentNode(nodeId)) {
       this.selectedValue.set(this.siteContent.getValue(nodeId, this.locale()));
     } else if (providedValue !== undefined) {
       this.selectedValue.set(providedValue);
@@ -343,7 +336,7 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
     }
 
     this.selectedValue.set(value);
-    if (this.isMockSiteContentNode(activeNode.nodeId) && activeNode.type !== 'image') {
+    if (this.isSiteContentNode(activeNode.nodeId) && activeNode.type !== 'image') {
       this.siteContent.setValue(
         activeNode.nodeId,
         activeNode.scope === 'global' ? 'en' : this.locale(),
@@ -390,7 +383,7 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
   }
 
   private readNodeValue(nodeId: string): string {
-    if (this.isMockSiteContentNode(nodeId)) {
+    if (this.isSiteContentNode(nodeId)) {
       return this.siteContent.getValue(nodeId, this.locale());
     }
 
@@ -445,7 +438,7 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
       .forEach((element) => element.classList.add('editor-node-selected'));
   }
 
-  private isMockSiteContentNode(nodeId: string): boolean {
+  private isSiteContentNode(nodeId: string): boolean {
     return [
       'navbar.about',
       'navbar.products',

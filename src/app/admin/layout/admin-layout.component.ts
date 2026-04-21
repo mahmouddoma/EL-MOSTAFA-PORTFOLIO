@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { MockAdminAuthService } from '../core/services/mock-admin-auth.service';
+import { AdminAuthService } from '../core/services/admin-auth.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ThemeService } from '../../core/services/theme.service';
 
@@ -40,8 +40,12 @@ import { ThemeService } from '../../core/services/theme.service';
         </nav>
 
         <div class="sidebar-footer">
-          <a routerLink="/" class="footer-link">{{ lang.translate('admin.sidebar.viewPortfolio') }}</a>
-          <button type="button" class="footer-link logout" (click)="logout()">{{ lang.translate('admin.sidebar.logout') }}</button>
+          <a routerLink="/" class="footer-link">{{
+            lang.translate('admin.sidebar.viewPortfolio')
+          }}</a>
+          <button type="button" class="footer-link logout" (click)="logout()">
+            {{ lang.translate('admin.sidebar.logout') }}
+          </button>
         </div>
       </aside>
 
@@ -67,30 +71,26 @@ import { ThemeService } from '../../core/services/theme.service';
                 <span class="btn-icon" [class.rotate]="theme.isDarkMode()">
                   @if (theme.isDarkMode()) {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="5"/>
-                      <line x1="12" y1="1" x2="12" y2="3"/>
-                      <line x1="12" y1="21" x2="12" y2="23"/>
-                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                      <line x1="1" y1="12" x2="3" y2="12"/>
-                      <line x1="21" y1="12" x2="23" y2="12"/>
-                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                      <circle cx="12" cy="12" r="5" />
+                      <line x1="12" y1="1" x2="12" y2="3" />
+                      <line x1="12" y1="21" x2="12" y2="23" />
+                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                      <line x1="1" y1="12" x2="3" y2="12" />
+                      <line x1="21" y1="12" x2="23" y2="12" />
+                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
                     </svg>
                   } @else {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                     </svg>
                   }
                 </span>
               </button>
 
               <!-- Language Toggle (same as portfolio navbar) -->
-              <button
-                type="button"
-                class="lang-btn"
-                (click)="lang.toggleLanguage()"
-              >
+              <button type="button" class="lang-btn" (click)="lang.toggleLanguage()">
                 <span class="lang-code">{{ lang.currentLang() === 'en' ? 'AR' : 'EN' }}</span>
               </button>
             </div>
@@ -121,7 +121,7 @@ import { ThemeService } from '../../core/services/theme.service';
         background-color: var(--bg-primary);
         background-image:
           radial-gradient(circle at top left, rgba(245, 124, 0, 0.12), transparent 35%),
-          radial-gradient(circle at bottom right, rgba(211, 47, 47, 0.10), transparent 35%);
+          radial-gradient(circle at bottom right, rgba(211, 47, 47, 0.1), transparent 35%);
         transition: background-color 0.5s ease;
       }
 
@@ -377,8 +377,12 @@ import { ThemeService } from '../../core/services/theme.service';
       }
 
       @keyframes spinOnce {
-        from { transform: rotate(-30deg); }
-        to { transform: rotate(0deg); }
+        from {
+          transform: rotate(-30deg);
+        }
+        to {
+          transform: rotate(0deg);
+        }
       }
 
       .btn-icon svg {
@@ -469,7 +473,7 @@ import { ThemeService } from '../../core/services/theme.service';
   ],
 })
 export class AdminLayoutComponent {
-  private readonly auth = inject(MockAdminAuthService);
+  private readonly auth = inject(AdminAuthService);
   private readonly router = inject(Router);
   readonly lang = inject(LanguageService);
   readonly theme = inject(ThemeService);
@@ -479,13 +483,21 @@ export class AdminLayoutComponent {
     { label: this.lang.translate('admin.nav.showcase'), route: '/admin/showcase', icon: 'SH' },
     { label: this.lang.translate('admin.nav.origins'), route: '/admin/origins', icon: 'OR' },
     { label: this.lang.translate('admin.nav.sections'), route: '/admin/sections', icon: 'SE' },
-    { label: this.lang.translate('admin.nav.siteContent'), route: '/admin/site-content', icon: 'SC' },
-    { label: this.lang.translate('admin.nav.visualEditor'), route: '/admin/visual-editor', icon: 'VE' },
+    {
+      label: this.lang.translate('admin.nav.siteContent'),
+      route: '/admin/site-content',
+      icon: 'SC',
+    },
+    {
+      label: this.lang.translate('admin.nav.visualEditor'),
+      route: '/admin/visual-editor',
+      icon: 'VE',
+    },
     { label: this.lang.translate('admin.nav.messages'), route: '/admin/messages', icon: 'MS' },
   ]);
 
-  readonly adminName = computed(() => this.auth.session()?.fullName ?? 'Admin User');
-  readonly adminEmail = computed(() => this.auth.session()?.email ?? 'admin@local.dev');
+  readonly adminName = computed(() => this.auth.session()?.user.fullName ?? 'Admin User');
+  readonly adminEmail = computed(() => this.auth.session()?.user.email ?? 'admin@local.dev');
 
   logout(): void {
     this.auth.logout();

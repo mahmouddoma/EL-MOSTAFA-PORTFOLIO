@@ -1,4 +1,6 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { SiteContentApiService } from './site-content-api.service';
+import { SiteContent } from '../models/site-content.model';
 
 export type EditableLocale = 'en' | 'ar';
 
@@ -7,7 +9,7 @@ interface LocalizedText {
   ar: string;
 }
 
-export interface MockSiteContent {
+export interface LocalizedSiteContent {
   navbar: {
     about: LocalizedText;
     products: LocalizedText;
@@ -29,7 +31,7 @@ export interface MockSiteContent {
   };
 }
 
-const DEFAULT_CONTENT: MockSiteContent = {
+const DEFAULT_CONTENT: LocalizedSiteContent = {
   navbar: {
     about: { en: 'About', ar: 'عنا' },
     products: { en: 'Products', ar: 'منتجاتنا' },
@@ -63,9 +65,10 @@ const DEFAULT_CONTENT: MockSiteContent = {
 @Injectable({
   providedIn: 'root',
 })
-export class MockSiteContentService {
+export class SiteContentService {
+  private readonly siteContentApi = inject(SiteContentApiService);
   private readonly STORAGE_KEY = 'elmostafa_mock_site_content_v1';
-  readonly content = signal<MockSiteContent>(this.loadContent());
+  readonly content = signal<LocalizedSiteContent>(this.loadContent());
 
   constructor() {
     window.addEventListener('storage', (event) => {
@@ -73,20 +76,28 @@ export class MockSiteContentService {
         this.content.set(this.loadContent());
       }
     });
+
+    this.siteContentApi.getContent().subscribe({
+      next: (content) => {
+        this.content.set({
+          ...structuredClone(DEFAULT_CONTENT),
+          ...content,
+        } as unknown as LocalizedSiteContent);
+        this.persistLocal();
+      },
+      error: () => undefined,
+    });
   }
 
-  getNavbarLabel(key: keyof MockSiteContent['navbar'], locale: EditableLocale): string {
+  getNavbarLabel(key: keyof LocalizedSiteContent['navbar'], locale: EditableLocale): string {
     return this.content().navbar[key][locale];
   }
 
-  getHeroValue(key: keyof MockSiteContent['hero'], locale: EditableLocale): string {
+  getHeroValue(key: keyof LocalizedSiteContent['hero'], locale: EditableLocale): string {
     return this.content().hero[key][locale];
   }
 
-  getFooterValue(
-    key: keyof MockSiteContent['footer'],
-    locale: EditableLocale,
-  ): string {
+  getFooterValue(key: keyof LocalizedSiteContent['footer'], locale: EditableLocale): string {
     const value = this.content().footer[key];
 
     if (typeof value === 'string') {
@@ -101,15 +112,15 @@ export class MockSiteContentService {
     const state = this.content();
 
     if (section === 'navbar' && field in state.navbar) {
-      return state.navbar[field as keyof MockSiteContent['navbar']][locale];
+      return state.navbar[field as keyof LocalizedSiteContent['navbar']][locale];
     }
 
     if (section === 'hero' && field in state.hero) {
-      return state.hero[field as keyof MockSiteContent['hero']][locale];
+      return state.hero[field as keyof LocalizedSiteContent['hero']][locale];
     }
 
     if (section === 'footer' && field in state.footer) {
-      const footerValue = state.footer[field as keyof MockSiteContent['footer']];
+      const footerValue = state.footer[field as keyof LocalizedSiteContent['footer']];
       return typeof footerValue === 'string' ? footerValue : footerValue[locale];
     }
 
@@ -125,8 +136,8 @@ export class MockSiteContentService {
         ...current,
         navbar: {
           ...current.navbar,
-          [field]: {
-            ...current.navbar[field as keyof MockSiteContent['navbar']],
+          [field as keyof LocalizedSiteContent['navbar']]: {
+            ...current.navbar[field as keyof LocalizedSiteContent['navbar']],
             [locale]: value,
           },
         },
@@ -140,8 +151,8 @@ export class MockSiteContentService {
         ...current,
         hero: {
           ...current.hero,
-          [field]: {
-            ...current.hero[field as keyof MockSiteContent['hero']],
+          [field as keyof LocalizedSiteContent['hero']]: {
+            ...current.hero[field as keyof LocalizedSiteContent['hero']],
             [locale]: value,
           },
         },
@@ -151,14 +162,14 @@ export class MockSiteContentService {
     }
 
     if (section === 'footer' && field in state.footer) {
-      const footerValue = state.footer[field as keyof MockSiteContent['footer']];
+      const footerValue = state.footer[field as keyof LocalizedSiteContent['footer']];
 
       if (typeof footerValue === 'string') {
         this.content.update((current) => ({
           ...current,
           footer: {
             ...current.footer,
-            [field]: value,
+            [field as keyof LocalizedSiteContent['footer']]: value,
           },
         }));
       } else {
@@ -166,8 +177,8 @@ export class MockSiteContentService {
           ...current,
           footer: {
             ...current.footer,
-            [field]: {
-              ...current.footer[field as keyof MockSiteContent['footer']] as LocalizedText,
+            [field as keyof LocalizedSiteContent['footer']]: {
+              ...(current.footer[field as keyof LocalizedSiteContent['footer']] as LocalizedText),
               [locale]: value,
             },
           },
@@ -178,7 +189,7 @@ export class MockSiteContentService {
     }
   }
 
-  private loadContent(): MockSiteContent {
+  private loadContent(): LocalizedSiteContent {
     const raw = localStorage.getItem(this.STORAGE_KEY);
 
     if (!raw) {
@@ -196,6 +207,13 @@ export class MockSiteContentService {
   }
 
   private persist(): void {
+    this.persistLocal();
+    this.siteContentApi.updateContent(this.content() as unknown as SiteContent).subscribe({
+      error: () => undefined,
+    });
+  }
+
+  private persistLocal(): void {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.content()));
   }
 }

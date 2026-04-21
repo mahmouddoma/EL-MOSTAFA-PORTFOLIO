@@ -1,7 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MockAdminDataService } from '../../core/services/mock-admin-data.service';
+import { PortfolioProductsApiService } from '../../../core/services/portfolio-products-api.service';
+import { OriginsApiService } from '../../../core/services/origins-api.service';
+import { MessagesApiService } from '../../../core/services/messages-api.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -27,12 +31,12 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
       <div class="stats-grid">
         <article class="stat-card">
           <span>Live Showcase Items</span>
-          <strong>{{ liveShowcaseCount }}</strong>
-          <small>{{ data.products.length }} total cards in the portfolio grid</small>
+          <strong>{{ liveShowcaseCount() }}</strong>
+          <small>{{ totalProducts() }} total cards in the portfolio grid</small>
         </article>
         <article class="stat-card">
           <span>Managed Origins</span>
-          <strong>{{ data.origins.length }}</strong>
+          <strong>{{ originCount() }}</strong>
           <small>Sourcing origins visible inside the public network section</small>
         </article>
         <article class="stat-card">
@@ -42,7 +46,7 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
         </article>
         <article class="stat-card">
           <span>Unread Messages</span>
-          <strong>{{ unreadMessages }}</strong>
+          <strong>{{ unreadMessages() }}</strong>
           <small>Portfolio inquiries waiting for review</small>
         </article>
       </div>
@@ -80,7 +84,7 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
           </div>
 
           <div class="actions">
-            <a class="action-card" routerLink="/admin/showcase">
+            <a class="action-card" routerLink="/admin/products">
               <strong>Showcase Library</strong>
               <span>Manage the featured collection cards.</span>
             </a>
@@ -352,8 +356,36 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
     `,
   ],
 })
-export class AdminDashboardComponent {
+export class AdminDashboardComponent implements OnInit {
   readonly data = inject(MockAdminDataService);
-  readonly unreadMessages = this.data.messages.filter((message) => message.status === 'New').length;
-  readonly liveShowcaseCount = this.data.products.filter((item) => item.status === 'Live').length;
+  private readonly productsApi = inject(PortfolioProductsApiService);
+  private readonly originsApi = inject(OriginsApiService);
+  private readonly messagesApi = inject(MessagesApiService);
+
+  readonly liveShowcaseCount = signal(0);
+  readonly totalProducts = signal(0);
+  readonly originCount = signal(0);
+  readonly unreadMessages = signal(0);
+
+  ngOnInit(): void {
+    this.refreshStats();
+  }
+
+  refreshStats(): void {
+    forkJoin({
+      products: this.productsApi.getProducts(),
+      origins: this.originsApi.getOrigins(),
+      messages: this.messagesApi.getMessages(),
+    }).subscribe({
+      next: (res) => {
+        this.totalProducts.set(res.products.length);
+        this.liveShowcaseCount.set(res.products.filter(p => p.status === 'Live').length);
+        this.originCount.set(res.origins.length);
+        this.unreadMessages.set(res.messages.filter(m => m.status === 'New').length);
+      },
+      error: () => {
+        // Fallback or error handling
+      }
+    });
+  }
 }

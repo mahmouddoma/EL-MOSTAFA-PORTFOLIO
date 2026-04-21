@@ -1,5 +1,6 @@
-import { Injectable, signal } from '@angular/core';
-import { EditableLocale } from './mock-site-content.service';
+import { Injectable, inject, signal } from '@angular/core';
+import { EditableLocale } from './site-content.service';
+import { VisualOverridesApiService } from './visual-overrides-api.service';
 
 export type EditorValueType = 'text' | 'textarea' | 'html' | 'image';
 export type EditorValueScope = EditableLocale | 'global';
@@ -22,7 +23,8 @@ interface EditorOverride {
 @Injectable({
   providedIn: 'root',
 })
-export class MockVisualEditorService {
+export class VisualEditorService {
+  private readonly visualOverridesApi = inject(VisualOverridesApiService);
   private readonly STORAGE_KEY = 'elmostafa_visual_editor_overrides_v1';
   readonly overrides = signal<Record<string, EditorOverride>>(this.loadOverrides());
 
@@ -31,6 +33,24 @@ export class MockVisualEditorService {
       if (event.key === this.STORAGE_KEY) {
         this.overrides.set(this.loadOverrides());
       }
+    });
+
+    this.visualOverridesApi.getOverrides().subscribe({
+      next: (overrides) => {
+        const nextOverrides = overrides.reduce<Record<string, EditorOverride>>((acc, override) => {
+          acc[this.makeKey(override.nodeId, override.scope as EditorValueScope)] = {
+            nodeId: override.nodeId,
+            type: override.type as EditorValueType,
+            scope: override.scope as EditorValueScope,
+            value: override.value,
+          };
+          return acc;
+        }, {});
+
+        this.overrides.set(nextOverrides);
+        this.persistLocal();
+      },
+      error: () => undefined,
     });
   }
 
@@ -77,7 +97,10 @@ export class MockVisualEditorService {
       },
     }));
 
-    this.persist();
+    this.persistLocal();
+    this.visualOverridesApi.saveOverride({ nodeId, value, type, scope }).subscribe({
+      error: () => undefined,
+    });
   }
 
   applyOverrides(root: ParentNode, locale: EditableLocale): void {
@@ -195,7 +218,7 @@ export class MockVisualEditorService {
     }
   }
 
-  private persist(): void {
+  private persistLocal(): void {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.overrides()));
   }
 }

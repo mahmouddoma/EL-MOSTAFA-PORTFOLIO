@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { AnimationService } from '../../core/services/animation.service';
 import { LanguageService } from '../../core/services/language.service';
-import { MockSiteContentService } from '../../core/services/mock-site-content.service';
+import { SiteContentService } from '../../core/services/site-content.service';
 
 interface FloatingFruit {
   imgSrc: string;
@@ -346,7 +346,7 @@ export class HeroComponent implements OnInit {
   floatingFruits: FloatingFruit[] = [];
   private animationService = inject(AnimationService);
   lang = inject(LanguageService);
-  content = inject(MockSiteContentService);
+  content = inject(SiteContentService);
 
   mouseX = () => this.animationService.laggingPosition().x;
   mouseY = () => this.animationService.laggingPosition().y;

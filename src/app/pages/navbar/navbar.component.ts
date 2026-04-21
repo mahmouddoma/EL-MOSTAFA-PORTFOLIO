@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { AnimationService } from '../../core/services/animation.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LanguageService } from '../../core/services/language.service';
-import { MockSiteContentService } from '../../core/services/mock-site-content.service';
+import { SiteContentService } from '../../core/services/site-content.service';
 
 @Component({
   selector: 'app-navbar',
@@ -481,7 +481,7 @@ export class NavbarComponent {
   private animationService = inject(AnimationService);
   theme = inject(ThemeService);
   lang = inject(LanguageService);
-  content = inject(MockSiteContentService);
+  content = inject(SiteContentService);
 
   mouseX = () => this.animationService.mousePosition().x;
   mouseY = () => this.animationService.mousePosition().y;

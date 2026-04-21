@@ -1,4 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { SiteContentApiService } from './site-content-api.service';
+import { SiteContent } from '../models/site-content.model';
+import { VisualEditorService } from './visual-editor.service';
 
 export type Language = 'en' | 'ar';
 
@@ -7,18 +10,16 @@ export type Language = 'en' | 'ar';
 })
 export class LanguageService {
   private readonly LANG_KEY = 'elmostafa_lang';
+  private readonly contentApi = inject(SiteContentApiService);
+
   readonly currentLang = signal<Language>('en');
+  readonly remoteContent = signal<SiteContent | null>(null);
 
   readonly isRtl = computed(() => this.currentLang() === 'ar');
 
   private translations: Record<Language, any> = {
     en: {
-      nav: {
-        about: 'About',
-        products: 'Products',
-        origins: 'Origins',
-        contact: 'Contact',
-      },
+      nav: { about: 'About', products: 'Products', origins: 'Origins', contact: 'Contact' },
       hero: {
         eyebrow: 'PREMIUM FRUIT IMPORTERS',
         title: 'EL MOSTAFA',
@@ -94,9 +95,7 @@ export class LanguageService {
         privacy: 'Privacy Policy',
         terms: 'Terms of Service',
       },
-      common: {
-        backToTop: 'Back to Top',
-      },
+      common: { backToTop: 'Back to Top' },
       admin: {
         title: 'Portfolio Control Center',
         subtitle: 'Content-first dashboard aligned with the public brand theme.',
@@ -117,12 +116,7 @@ export class LanguageService {
       },
     },
     ar: {
-      nav: {
-        about: 'عنـا',
-        products: 'منتجاتنا',
-        origins: 'المصادر',
-        contact: 'تواصل معنا',
-      },
+      nav: { about: 'عنـا', products: 'منتجاتنا', origins: 'المصادر', contact: 'تواصل معنا' },
       hero: {
         eyebrow: 'مستوردو كبار الفواكه الفاخرة',
         title: 'المصطفى',
@@ -198,9 +192,7 @@ export class LanguageService {
         privacy: 'سياسة الخصوصية',
         terms: 'شروط الخدمة',
       },
-      common: {
-        backToTop: 'العودة للأعلى',
-      },
+      common: { backToTop: 'العودة للأعلى' },
       admin: {
         title: 'مركز التحكم في المحافظ',
         subtitle: 'لوحة تحكم تركز على المحتوى ومتوافقة مع سمة العلامة التجارية العامة.',
@@ -231,6 +223,15 @@ export class LanguageService {
     if (savedLang) {
       this.setLanguage(savedLang);
     }
+    this.fetchRemoteContent();
+  }
+
+  private fetchRemoteContent() {
+    this.contentApi.getContent().subscribe({
+      next: (content) => {
+        this.remoteContent.set(content);
+      },
+    });
   }
 
   setLanguage(lang: Language) {
@@ -245,10 +246,39 @@ export class LanguageService {
     this.setLanguage(newLang);
   }
 
+  private readonly visualEditor = inject(VisualEditorService);
+
   translateFor(lang: Language, path: string): string {
+    // 0. Try visual overrides first (if applicable to this path)
+    const override =
+      this.visualEditor.overrides()[`global::${path}`] ||
+      this.visualEditor.overrides()[`${lang}::${path}`];
+    if (override) {
+      return override.value;
+    }
+
+    // 1. Try remote content second
+    const remote = this.remoteContent();
+    if (remote) {
+      const keys = path.split('.');
+      let val: any = remote;
+      for (const key of keys) {
+        if (val) val = val[key];
+      }
+
+      // If found in remote and it is a LocalizedText object (has the lang key)
+      if (val && val[lang]) {
+        return val[lang];
+      }
+      // If it's a direct string (like email/phone in footer)
+      if (typeof val === 'string') {
+        return val;
+      }
+    }
+
+    // 2. Fallback to hardcoded translations
     const keys = path.split('.');
     let value = this.translations[lang];
-
     for (const key of keys) {
       if (value) value = value[key];
     }

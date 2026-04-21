@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MockAdminDataService } from '../../core/services/mock-admin-data.service';
+import { OriginsApiService } from '../../../core/services/origins-api.service';
+import { OriginApi } from '../../../core/models/origin-api.model';
 
 @Component({
   selector: 'app-admin-origins',
@@ -17,8 +18,16 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
         <button type="button">+ Add Origin</button>
       </div>
 
-      <div class="origin-grid">
-        <article class="origin-card" *ngFor="let origin of data.origins">
+      <div *ngIf="loading()" class="loading-state">
+        <p>Loading origins...</p>
+      </div>
+
+      <div *ngIf="!loading() && origins().length === 0" class="empty-state">
+        <p>No origins found in the network.</p>
+      </div>
+
+      <div class="origin-grid" *ngIf="!loading() && origins().length > 0">
+        <article class="origin-card" *ngFor="let origin of origins()">
           <div class="origin-top">
             <div class="flag">{{ origin.flag }}</div>
             <div>
@@ -78,8 +87,17 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
 
       .page-head p,
       .origin-top p,
-      .stats span {
+      .stats span,
+      .loading-state,
+      .empty-state {
         color: var(--text-secondary);
+      }
+
+      .loading-state, .empty-state {
+        padding: 40px;
+        text-align: center;
+        border: 1px dashed var(--border-color);
+        border-radius: 26px;
       }
 
       button {
@@ -196,6 +214,26 @@ import { MockAdminDataService } from '../../core/services/mock-admin-data.servic
     `,
   ],
 })
-export class AdminOriginsComponent {
-  readonly data = inject(MockAdminDataService);
+export class AdminOriginsComponent implements OnInit {
+  private readonly originsApi = inject(OriginsApiService);
+
+  readonly origins = signal<OriginApi[]>([]);
+  readonly loading = signal(true);
+
+  ngOnInit(): void {
+    this.loadOrigins();
+  }
+
+  loadOrigins(): void {
+    this.loading.set(true);
+    this.originsApi.getOrigins().subscribe({
+      next: (data) => {
+        this.origins.set(data);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      }
+    });
+  }
 }

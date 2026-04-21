@@ -21,7 +21,7 @@ import { OriginsComponent } from '../origins/origins.component';
 import { WhyUsComponent } from '../../shared/components/why-us/why-us.component';
 import { FooterComponent } from '../footer/footer.component';
 import { LanguageService, Language } from '../../core/services/language.service';
-import { MockVisualEditorService } from '../../core/services/mock-visual-editor.service';
+import { VisualEditorService } from '../../core/services/visual-editor.service';
 
 @Component({
   selector: 'app-public-home',
@@ -63,7 +63,7 @@ export class PublicHomeComponent implements AfterViewInit, OnDestroy {
     @Inject(PLATFORM_ID) platformId: Object,
     private readonly route: ActivatedRoute,
     private readonly languageService: LanguageService,
-    private readonly visualEditor: MockVisualEditorService,
+    private readonly visualEditor: VisualEditorService,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
 
