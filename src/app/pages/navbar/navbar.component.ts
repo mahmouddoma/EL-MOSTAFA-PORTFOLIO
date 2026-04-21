@@ -11,7 +11,6 @@ import { SiteContentService } from '../../core/services/site-content.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <!-- Custom Cursor -->
     <div
       class="custom-cursor-dot"
       [style.transform]="'translate(' + mouseX() + 'px, ' + mouseY() + 'px)'"
