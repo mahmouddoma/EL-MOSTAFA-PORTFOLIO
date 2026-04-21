@@ -60,7 +60,7 @@ import { EditorNodeMeta, VisualEditorService } from '../../../core/services/visu
             <input [ngModel]="selectedValue()" (ngModelChange)="updateValue($event)" />
           </ng-template>
 
-          <button type="button" class="save-button" (click)="save()">Save Mock Draft</button>
+          <button type="button" class="save-button" (click)="save()">Confirm Saved Change</button>
           <p class="hint">
             Selected node: <strong>{{ activeNode }}</strong>
           </p>
@@ -356,7 +356,18 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
-    this.status.set('Portfolio draft saved locally. Backend wiring comes next.');
+    const activeNode = this.activeNode();
+
+    if (!activeNode) {
+      return;
+    }
+
+    this.updateValue(this.selectedValue());
+    this.status.set(
+      this.isSiteContentNode(activeNode.nodeId)
+        ? `Saved ${activeNode.nodeId} to /api/v1/content.`
+        : `Saved ${activeNode.nodeId} to /api/v1/overrides.`,
+    );
   }
 
   onPreviewLoad(): void {

@@ -155,6 +155,7 @@ body.editor-preview [data-edit-id] {
   outline: 1px dashed rgba(245, 124, 0, 0.45);
   outline-offset: 6px;
   cursor: pointer;
+  pointer-events: auto;
   transition: outline-color 0.2s ease;
 }
 

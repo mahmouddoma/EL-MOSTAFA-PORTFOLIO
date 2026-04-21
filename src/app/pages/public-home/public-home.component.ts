@@ -19,6 +19,8 @@ import { AboutComponent } from '../about/about.component';
 import { ProductsComponent } from '../products/products.component';
 import { OriginsComponent } from '../origins/origins.component';
 import { WhyUsComponent } from '../../shared/components/why-us/why-us.component';
+import { PublicDataSectionsComponent } from '../public-data-sections/public-data-sections.component';
+import { ContactNewsletterComponent } from '../contact-newsletter/contact-newsletter.component';
 import { FooterComponent } from '../footer/footer.component';
 import { LanguageService, Language } from '../../core/services/language.service';
 import { VisualEditorService } from '../../core/services/visual-editor.service';
@@ -36,6 +38,8 @@ import { VisualEditorService } from '../../core/services/visual-editor.service';
     ProductsComponent,
     OriginsComponent,
     WhyUsComponent,
+    PublicDataSectionsComponent,
+    ContactNewsletterComponent,
     FooterComponent,
   ],
   template: `
@@ -48,6 +52,8 @@ import { VisualEditorService } from '../../core/services/visual-editor.service';
       <app-products></app-products>
       <app-origins></app-origins>
       <app-why-us></app-why-us>
+      <app-public-data-sections></app-public-data-sections>
+      <app-contact-newsletter></app-contact-newsletter>
     </main>
     <app-footer></app-footer>
   `,
@@ -95,6 +101,16 @@ export class PublicHomeComponent implements AfterViewInit, OnDestroy {
         document.body.classList.toggle('editor-preview', editor);
         queueMicrotask(() => this.applyOverridesSafely(this.languageService.currentLang()));
       }
+    });
+
+    this.route.fragment.subscribe((fragment) => {
+      if (!fragment || !this.isBrowser) {
+        return;
+      }
+
+      setTimeout(() => {
+        document.getElementById(fragment)?.scrollIntoView({ behavior: 'smooth' });
+      }, 120);
     });
 
     if (this.isBrowser) {

@@ -7,7 +7,7 @@ export interface QuotePayload {
   email: string;
   phone?: string;
   quantity?: string;
-  productId: number;
+  productId?: number;
   message?: string;
   attachmentUrl?: string;
   locale?: string;
@@ -23,7 +23,7 @@ export interface Quote {
   email: string;
   phone?: string;
   quantity?: string;
-  productId: number;
+  productId?: number;
   productSlug?: string;
   message?: string;
   attachmentUrl?: string;
@@ -47,4 +47,3 @@ export interface QuoteStatusPayload {
 }
 
 export type QuotePagedResponse = PagedResponse<Quote>;
-

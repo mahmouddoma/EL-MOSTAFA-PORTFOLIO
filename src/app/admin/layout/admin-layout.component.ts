@@ -481,6 +481,12 @@ export class AdminLayoutComponent {
   readonly navItems = computed(() => [
     { label: this.lang.translate('admin.nav.dashboard'), route: '/admin/dashboard', icon: 'DB' },
     { label: this.lang.translate('admin.nav.showcase'), route: '/admin/showcase', icon: 'SH' },
+    { label: 'Catalog', route: '/admin/catalog-products', icon: 'CP' },
+    { label: 'Articles', route: '/admin/articles', icon: 'AR' },
+    { label: 'Resources', route: '/admin/resources', icon: 'RS' },
+    { label: 'Quotes', route: '/admin/quotes', icon: 'QT' },
+    { label: 'Newsletter', route: '/admin/newsletter', icon: 'NL' },
+    { label: 'Users', route: '/admin/users', icon: 'US' },
     { label: this.lang.translate('admin.nav.origins'), route: '/admin/origins', icon: 'OR' },
     { label: this.lang.translate('admin.nav.sections'), route: '/admin/sections', icon: 'SE' },
     {

@@ -1,0 +1,62 @@
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { NewsletterApiService } from '../../core/services/newsletter-api.service';
+import { FooterComponent } from '../footer/footer.component';
+import { NavbarComponent } from '../navbar/navbar.component';
+
+@Component({
+  selector: 'app-newsletter-confirm',
+  standalone: true,
+  imports: [CommonModule, RouterLink, NavbarComponent, FooterComponent],
+  template: `
+    <app-navbar></app-navbar>
+    <main class="page">
+      <h1>Newsletter confirmation</h1>
+      <p>{{ status() }}</p>
+      <a routerLink="/">Back to portfolio</a>
+    </main>
+    <app-footer></app-footer>
+  `,
+  styles: [
+    `
+      .page {
+        min-height: 70vh;
+        display: grid;
+        place-content: center;
+        gap: 12px;
+        padding: 40px;
+        text-align: center;
+      }
+
+      h1 {
+        color: var(--text-primary);
+      }
+
+      p,
+      a {
+        color: var(--color-primary);
+        font-weight: 800;
+      }
+    `,
+  ],
+})
+export class NewsletterConfirmComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly newsletterApi = inject(NewsletterApiService);
+
+  readonly status = signal('Confirming your subscription...');
+
+  ngOnInit(): void {
+    const token = this.route.snapshot.queryParamMap.get('token');
+    if (!token) {
+      this.status.set('Missing confirmation token.');
+      return;
+    }
+
+    this.newsletterApi.confirm(token).subscribe({
+      next: () => this.status.set('Subscription confirmed.'),
+      error: () => this.status.set('Could not confirm this subscription.'),
+    });
+  }
+}

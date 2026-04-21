@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, map, tap, throwError } from 'rxjs';
 import { API_BASE_URL } from '../../../core/config/api.config';
+import { AdminMockFallbackService } from '../../../core/services/admin-mock-fallback.service';
 import {
   AdminSession,
   AdminUser,
@@ -14,6 +15,7 @@ import {
 })
 export class AdminAuthService {
   private readonly http = inject(HttpClient);
+  private readonly mock = inject(AdminMockFallbackService);
   private readonly STORAGE_KEY = 'elmostafa_admin_session_v2';
   private readonly authUrl = `${API_BASE_URL}/auth`;
 
@@ -23,7 +25,14 @@ export class AdminAuthService {
   requestCode(email: string): Observable<AuthMessageResponse> {
     return this.http
       .post<AuthMessageResponse>(`${this.authUrl}/request-code`, { email: email.trim() })
-      .pipe(catchError((error) => this.handleError(error)));
+      .pipe(
+        catchError((error) =>
+          this.fallbackOrError(error, 'request verification code', () => ({
+            success: true,
+            message: 'Development fallback: use any 6-digit code.',
+          })),
+        ),
+      );
   }
 
   verifyCode(email: string, code: string): Observable<AdminSession> {
@@ -34,8 +43,10 @@ export class AdminAuthService {
       })
       .pipe(
         map((response) => this.normalizeSessionResponse(response, email)),
+        catchError((error) =>
+          this.fallbackOrError(error, 'verify admin code', () => this.createMockSession(email)),
+        ),
         tap((session) => this.persistSession(session)),
-        catchError((error) => this.handleError(error)),
       );
   }
 
@@ -47,8 +58,10 @@ export class AdminAuthService {
       })
       .pipe(
         map((response) => this.normalizeSessionResponse(response, email)),
+        catchError((error) =>
+          this.fallbackOrError(error, 'admin password login', () => this.createMockSession(email)),
+        ),
         tap((session) => this.persistSession(session)),
-        catchError((error) => this.handleError(error)),
       );
   }
 
@@ -83,19 +96,38 @@ export class AdminAuthService {
   getUsers(): Observable<AdminUser[]> {
     return this.http
       .get<AdminUser[]>(`${this.authUrl}/users`)
-      .pipe(catchError((error) => this.handleError(error)));
+      .pipe(
+        catchError((error) =>
+          this.fallbackOrError(error, 'load admin users', () => this.mock.list<AdminUser>('users')),
+        ),
+      );
   }
 
   createUser(payload: CreateAdminUserRequest): Observable<AdminUser> {
     return this.http
       .post<AdminUser>(`${this.authUrl}/users`, payload)
-      .pipe(catchError((error) => this.handleError(error)));
+      .pipe(
+        catchError((error) =>
+          this.fallbackOrError(error, 'create admin user', () =>
+            this.mock.create<AdminUser>('users', {
+              ...payload,
+              fullName: `${payload.firstName} ${payload.lastName}`.trim(),
+            }),
+          ),
+        ),
+      );
   }
 
   deleteUser(id: string | number): Observable<void> {
     return this.http
       .delete<void>(`${this.authUrl}/users/${id}`)
-      .pipe(catchError((error) => this.handleError(error)));
+      .pipe(
+        catchError((error) =>
+          this.fallbackOrError(error, 'delete admin user', () => {
+            this.mock.delete('users', id);
+          }),
+        ),
+      );
   }
 
   private persistSession(session: AdminSession): void {
@@ -157,6 +189,34 @@ export class AdminAuthService {
     };
   }
 
+  private createMockSession(email: string): AdminSession {
+    const fallbackEmail = email?.trim() || 'admin@local.dev';
+    return {
+      accessToken: 'dev-admin-mock-token',
+      refreshToken: 'dev-admin-mock-refresh-token',
+      user: {
+        id: 1,
+        email: fallbackEmail,
+        firstName: 'Local',
+        lastName: 'Admin',
+        fullName: 'Local Admin',
+        role: 'Admin',
+      },
+    };
+  }
+
+  private fallbackOrError<T>(
+    error: HttpErrorResponse,
+    label: string,
+    valueFactory: () => T,
+  ): Observable<T> {
+    if (this.mock.enabled) {
+      return this.mock.fallback(error, label, valueFactory);
+    }
+
+    return this.handleError(error);
+  }
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     const message =
       typeof error.error === 'string'
@@ -166,4 +226,3 @@ export class AdminAuthService {
     return throwError(() => new Error(message));
   }
 }
-

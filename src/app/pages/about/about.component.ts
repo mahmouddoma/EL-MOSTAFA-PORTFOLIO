@@ -265,6 +265,12 @@ import { LanguageService } from '../../core/services/language.service';
         pointer-events: none;
         transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       }
+      :host-context(body.editor-preview) .header-content,
+      :host-context(body.editor-preview) .node-content.active,
+      :host-context(body.editor-preview) .glass-node,
+      :host-context(body.editor-preview) .glass-node [data-edit-id] {
+        pointer-events: auto;
+      }
       .node-left {
         left: 10%;
         transform: translateX(-40px);

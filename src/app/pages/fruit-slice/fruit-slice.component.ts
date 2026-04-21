@@ -212,6 +212,14 @@ interface Particle {
         pointer-events: none;
       }
 
+      :host-context(body.editor-preview) .reveal-content {
+        pointer-events: auto;
+      }
+
+      :host-context(body.editor-preview) .reveal-content [data-edit-id] {
+        pointer-events: auto;
+      }
+
       .tension-wrapper {
         position: relative;
         z-index: 20;

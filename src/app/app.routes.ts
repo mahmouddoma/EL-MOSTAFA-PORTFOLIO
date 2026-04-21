@@ -8,6 +8,50 @@ export const routes: Routes = [
       import('./pages/public-home/public-home.component').then((m) => m.PublicHomeComponent),
   },
   {
+    path: 'blog',
+    loadComponent: () =>
+      import('./pages/blog-list/blog-list.component').then((m) => m.BlogListComponent),
+  },
+  {
+    path: 'blog/:slug',
+    loadComponent: () =>
+      import('./pages/article-detail/article-detail.component').then((m) => m.ArticleDetailComponent),
+  },
+  {
+    path: 'catalog',
+    loadComponent: () =>
+      import('./pages/catalog-list/catalog-list.component').then((m) => m.CatalogListComponent),
+  },
+  {
+    path: 'catalog/:slug',
+    loadComponent: () =>
+      import('./pages/catalog-detail/catalog-detail.component').then((m) => m.CatalogDetailComponent),
+  },
+  {
+    path: 'quote',
+    loadComponent: () =>
+      import('./pages/quote-form/quote-form.component').then((m) => m.QuoteFormComponent),
+  },
+  {
+    path: 'newsletter/confirm',
+    loadComponent: () =>
+      import('./pages/newsletter-confirm/newsletter-confirm.component').then(
+        (m) => m.NewsletterConfirmComponent,
+      ),
+  },
+  {
+    path: 'newsletter/unsubscribe',
+    loadComponent: () =>
+      import('./pages/newsletter-unsubscribe/newsletter-unsubscribe.component').then(
+        (m) => m.NewsletterUnsubscribeComponent,
+      ),
+  },
+  {
+    path: 'pages/:slug',
+    loadComponent: () =>
+      import('./pages/static-page/static-page.component').then((m) => m.StaticPageComponent),
+  },
+  {
     path: 'admin/login',
     loadComponent: () =>
       import('./admin/pages/admin-login/admin-login.component').then((m) => m.AdminLoginComponent),
@@ -32,6 +76,46 @@ export const routes: Routes = [
           import('./admin/pages/products/admin-products.component').then(
             (m) => m.AdminProductsComponent,
           ),
+      },
+      {
+        path: 'catalog-products',
+        loadComponent: () =>
+          import('./admin/pages/catalog-products/admin-catalog-products.component').then(
+            (m) => m.AdminCatalogProductsComponent,
+          ),
+      },
+      {
+        path: 'articles',
+        loadComponent: () =>
+          import('./admin/pages/articles/admin-articles.component').then(
+            (m) => m.AdminArticlesComponent,
+          ),
+      },
+      {
+        path: 'resources',
+        loadComponent: () =>
+          import('./admin/pages/resources/admin-resources.component').then(
+            (m) => m.AdminResourcesComponent,
+          ),
+      },
+      {
+        path: 'quotes',
+        loadComponent: () =>
+          import('./admin/pages/quotes/admin-quotes.component').then(
+            (m) => m.AdminQuotesComponent,
+          ),
+      },
+      {
+        path: 'newsletter',
+        loadComponent: () =>
+          import('./admin/pages/newsletter/admin-newsletter.component').then(
+            (m) => m.AdminNewsletterComponent,
+          ),
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./admin/pages/users/admin-users.component').then((m) => m.AdminUsersComponent),
       },
       {
         path: 'origins',

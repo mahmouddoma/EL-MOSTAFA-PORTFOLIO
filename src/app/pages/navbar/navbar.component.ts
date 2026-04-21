@@ -1,6 +1,6 @@
 import { Component, HostListener, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AnimationService } from '../../core/services/animation.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LanguageService } from '../../core/services/language.service';
@@ -58,6 +58,9 @@ import { SiteContentService } from '../../core/services/site-content.service';
                 content.getNavbarLabel('origins', lang.currentLang())
               }}</span>
             </a>
+            <a routerLink="/catalog">Catalog</a>
+            <a routerLink="/blog">Blog</a>
+            <a routerLink="/quote">Quote</a>
             <a href="#contact" (click)="scrollTo('contact', $event)">
               <span data-edit-id="navbar.contact" data-edit-label="Navbar Contact">{{
                 content.getNavbarLabel('contact', lang.currentLang())
@@ -149,6 +152,9 @@ import { SiteContentService } from '../../core/services/site-content.service';
           <a href="#origins" (click)="mobileNavigate('origins', $event)">{{
             content.getNavbarLabel('origins', lang.currentLang())
           }}</a>
+          <a routerLink="/catalog" (click)="toggleMenu()">Catalog</a>
+          <a routerLink="/blog" (click)="toggleMenu()">Blog</a>
+          <a routerLink="/quote" (click)="toggleMenu()">Quote</a>
           <a href="#contact" (click)="mobileNavigate('contact', $event)">{{
             content.getNavbarLabel('contact', lang.currentLang())
           }}</a>
@@ -481,6 +487,7 @@ export class NavbarComponent {
   theme = inject(ThemeService);
   lang = inject(LanguageService);
   content = inject(SiteContentService);
+  private readonly router = inject(Router);
 
   mouseX = () => this.animationService.mousePosition().x;
   mouseY = () => this.animationService.mousePosition().y;
@@ -506,12 +513,26 @@ export class NavbarComponent {
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
+      window.history.replaceState(null, '', `#${id}`);
+      return;
     }
+
+    this.router.navigate(['/'], { fragment: id }).then(() => {
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      }, 80);
+    });
   }
 
   scrollToTop(event: Event) {
     event.preventDefault();
+    if (this.router.url.split('#')[0] !== '/') {
+      this.router.navigateByUrl('/');
+      return;
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.history.replaceState(null, '', '/');
   }
 
   mobileNavigate(id: string, event: Event) {

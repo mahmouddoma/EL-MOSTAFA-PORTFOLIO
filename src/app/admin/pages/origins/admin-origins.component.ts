@@ -1,12 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { OriginsApiService } from '../../../core/services/origins-api.service';
 import { OriginApi } from '../../../core/models/origin-api.model';
 
 @Component({
   selector: 'app-admin-origins',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
     <section class="page">
       <div class="page-head">
@@ -15,8 +16,19 @@ import { OriginApi } from '../../../core/models/origin-api.model';
           <h2>Public Origins Network</h2>
           <p>Control the countries and sourcing coverage displayed in the portfolio.</p>
         </div>
-        <button type="button">+ Add Origin</button>
+        <button type="button" [disabled]="true">Add endpoint not in Swagger</button>
       </div>
+
+      <form class="editor" *ngIf="editing()" [formGroup]="originForm" (ngSubmit)="saveOrigin()">
+        <input formControlName="flag" placeholder="Flag" />
+        <input formControlName="country" placeholder="Country EN" />
+        <input formControlName="country_ar" placeholder="Country AR" />
+        <input formControlName="focus" placeholder="Focus" />
+        <input formControlName="featuredItems" type="number" placeholder="Featured items" />
+        <input formControlName="status" placeholder="Status" />
+        <button type="submit" [disabled]="originForm.invalid">Update Origin</button>
+        <button type="button" class="secondary" (click)="cancelEdit()">Cancel</button>
+      </form>
 
       <div *ngIf="loading()" class="loading-state">
         <p>Loading origins...</p>
@@ -48,8 +60,8 @@ import { OriginApi } from '../../../core/models/origin-api.model';
           </div>
 
           <div class="actions">
-            <button type="button" class="secondary">Edit Coverage</button>
-            <button type="button" class="secondary">Sync Cards</button>
+            <button type="button" class="secondary" (click)="editOrigin(origin)">Edit Coverage</button>
+            <button type="button" class="secondary" (click)="loadOrigins()">Sync Cards</button>
           </div>
         </article>
       </div>
@@ -189,6 +201,25 @@ import { OriginApi } from '../../../core/models/origin-api.model';
         flex-wrap: wrap;
       }
 
+      .editor {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        padding: 18px;
+        border: 1px solid var(--border-color);
+        border-radius: 18px;
+        background: var(--card-bg);
+      }
+
+      .editor input {
+        border: 1px solid var(--border-color);
+        background: var(--bg-surface);
+        color: var(--text-primary);
+        border-radius: 12px;
+        padding: 12px;
+        font: inherit;
+      }
+
       .actions .secondary {
         color: var(--text-secondary);
         background: var(--bg-surface);
@@ -210,15 +241,30 @@ import { OriginApi } from '../../../core/models/origin-api.model';
         .page-head {
           display: grid;
         }
+
+        .editor {
+          grid-template-columns: 1fr;
+        }
       }
     `,
   ],
 })
 export class AdminOriginsComponent implements OnInit {
   private readonly originsApi = inject(OriginsApiService);
+  private readonly fb = inject(FormBuilder);
 
   readonly origins = signal<OriginApi[]>([]);
   readonly loading = signal(true);
+  readonly editing = signal<OriginApi | null>(null);
+
+  readonly originForm = this.fb.group({
+    flag: ['', Validators.required],
+    country: ['', Validators.required],
+    country_ar: [''],
+    focus: ['', Validators.required],
+    featuredItems: [0, Validators.required],
+    status: ['', Validators.required],
+  });
 
   ngOnInit(): void {
     this.loadOrigins();
@@ -235,5 +281,40 @@ export class AdminOriginsComponent implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  editOrigin(origin: OriginApi): void {
+    this.editing.set(origin);
+    this.originForm.patchValue(origin);
+  }
+
+  cancelEdit(): void {
+    this.editing.set(null);
+    this.originForm.reset();
+  }
+
+  saveOrigin(): void {
+    const origin = this.editing();
+    if (!origin || this.originForm.invalid) {
+      return;
+    }
+
+    const value = this.originForm.getRawValue();
+    this.originsApi
+      .updateOrigin(origin.id, {
+        flag: value.flag ?? '',
+        country: value.country ?? '',
+        country_ar: value.country_ar ?? '',
+        focus: value.focus ?? '',
+        featuredItems: Number(value.featuredItems ?? 0),
+        status: value.status ?? '',
+      })
+      .subscribe({
+        next: () => {
+          this.cancelEdit();
+          this.loadOrigins();
+        },
+        error: (error) => console.error('Failed to update origin', error),
+      });
   }
 }
