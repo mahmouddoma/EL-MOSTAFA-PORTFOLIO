@@ -36,16 +36,21 @@ import { EditorNodeMeta, VisualEditorService } from '../../../core/services/visu
           </div>
         </div>
 
-        <div class="node-list">
-          <button
-            type="button"
-            class="node-chip"
-            *ngFor="let node of nodes()"
-            [class.active]="selectedNodeId() === node.nodeId"
-            (click)="selectNode(node.nodeId)"
-          >
-            {{ node.label }}
-          </button>
+        <div class="node-sections-container">
+          <div class="node-group" *ngFor="let group of groupedNodes(); trackBy: trackByGroup">
+            <h3 class="group-title">{{ group.section }}</h3>
+            <div class="node-list">
+              <button
+                type="button"
+                class="node-chip"
+                *ngFor="let node of group.nodes; trackBy: trackByNode"
+                [class.active]="selectedNodeId() === node.nodeId"
+                (click)="selectNode(node.nodeId)"
+              >
+                {{ node.label }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="editor-card" *ngIf="selectedNodeId() as activeNode; else emptyState">
@@ -137,10 +142,49 @@ import { EditorNodeMeta, VisualEditorService } from '../../../core/services/visu
         font-size: 0.88rem;
       }
 
-      .locale-switch,
-      .node-list {
+      .locale-switch {
         display: flex;
         gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .node-sections-container {
+        overflow-y: auto;
+        max-height: calc(100vh - 450px);
+        padding-right: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .node-sections-container::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .node-sections-container::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 10px;
+      }
+
+      .node-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .group-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--color-primary);
+        font-weight: 800;
+        margin: 0;
+        opacity: 0.8;
+      }
+
+      .node-list {
+        display: flex;
+        gap: 6px;
         flex-wrap: wrap;
       }
 
@@ -283,6 +327,26 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
     ),
   );
 
+  readonly groupedNodes = computed(() => {
+    const nodes = this.nodes();
+    const sections: Record<string, EditorNodeMeta[]> = {};
+
+    nodes.forEach((node) => {
+      let section = node.nodeId.split('.')[0];
+      section = section.charAt(0).toUpperCase() + section.slice(1);
+
+      if (!sections[section]) {
+        sections[section] = [];
+      }
+      sections[section].push(node);
+    });
+
+    return Object.entries(sections).map(([name, nodes]) => ({
+      section: name,
+      nodes,
+    }));
+  });
+
   private readonly messageHandler = (event: MessageEvent) => {
     if (event.origin !== window.location.origin || event.data?.type !== 'editor-node-selected') {
       return;
@@ -317,12 +381,14 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
   selectNode(nodeId: string, providedValue?: string): void {
     this.selectedNodeId.set(nodeId);
 
+    const currentValue = this.readNodeValue(nodeId);
+
     if (this.isSiteContentNode(nodeId)) {
       this.selectedValue.set(this.siteContent.getValue(nodeId, this.locale()));
     } else if (providedValue !== undefined) {
       this.selectedValue.set(providedValue);
     } else {
-      this.selectedValue.set(this.readNodeValue(nodeId));
+      this.selectedValue.set(currentValue);
     }
 
     this.highlightSelectedNode(nodeId);
@@ -371,6 +437,24 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
   }
 
   onPreviewLoad(): void {
+    this.scanNodes();
+
+    // Fallback retries because Angular inside the iframe might still be bootstrapping/rendering
+    // when the iframe 'load' event fires.
+    setTimeout(() => {
+      if (this.nodes().length === 0) {
+        this.scanNodes();
+      }
+    }, 800);
+
+    setTimeout(() => {
+      if (this.nodes().length === 0) {
+        this.scanNodes();
+      }
+    }, 2000);
+  }
+
+  private scanNodes(): void {
     const documentRef = this.previewFrame?.nativeElement.contentDocument;
 
     if (!documentRef) {
@@ -386,7 +470,7 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
         ? currentNodeId
         : (scannedNodes[0]?.nodeId ?? null);
 
-    if (fallbackNodeId) {
+    if (fallbackNodeId && !this.selectedNodeId()) {
       this.selectNode(fallbackNodeId);
     }
 
@@ -399,10 +483,6 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
     }
 
     const activeNode = this.nodes().find((node) => node.nodeId === nodeId);
-
-    if (!activeNode) {
-      return '';
-    }
 
     const documentRef = this.previewFrame?.nativeElement.contentDocument;
 
@@ -420,7 +500,7 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
       }
     }
 
-    return activeNode.value;
+    return activeNode?.value ?? '';
   }
 
   private applyValueToPreview(nodeId: string, value: string, type: EditorNodeMeta['type']): void {
@@ -465,5 +545,13 @@ export class AdminVisualEditorComponent implements OnInit, OnDestroy {
       'footer.email',
       'footer.phone',
     ].includes(nodeId);
+  }
+
+  trackByGroup(index: number, group: { section: string }): string {
+    return group.section;
+  }
+
+  trackByNode(index: number, node: EditorNodeMeta): string {
+    return node.nodeId;
   }
 }

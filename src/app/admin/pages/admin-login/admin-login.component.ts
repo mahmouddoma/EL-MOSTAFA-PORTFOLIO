@@ -40,24 +40,52 @@ type AuthMode = 'code' | 'password';
 
         <div *ngIf="mode() === 'code' && step() === 1" class="form-block">
           <label>Email</label>
-          <input [(ngModel)]="email" type="email" placeholder="admin@company.com" />
+          <input
+            [(ngModel)]="email"
+            type="email"
+            autocomplete="email"
+            placeholder="admin@company.com"
+          />
           <button type="button" (click)="requestCode()" [disabled]="loading()">
             {{ loading() ? 'Sending...' : 'Send Verification Code' }}
           </button>
         </div>
 
         <div *ngIf="mode() === 'code' && step() === 2" class="form-block">
+          <div class="code-info">
+            <p>We've sent a 6-digit code to:</p>
+            <strong>{{ email }}</strong>
+          </div>
           <label>Verification Code</label>
-          <input [(ngModel)]="code" type="text" maxlength="6" placeholder="911146" />
+          <input
+            [ngModel]="code"
+            (ngModelChange)="code = normalizeCode($event)"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            maxlength="6"
+            pattern="[0-9]*"
+            placeholder="911146"
+          />
           <button type="button" (click)="verifyCode()" [disabled]="loading()">
             {{ loading() ? 'Checking...' : 'Login to Dashboard' }}
           </button>
-          <button type="button" class="ghost" (click)="step.set(1)">Back</button>
+          <div class="step-actions">
+            <button type="button" class="ghost" (click)="requestCode()" [disabled]="loading()">
+              Resend Code
+            </button>
+            <button type="button" class="ghost" (click)="step.set(1)">Change Email</button>
+          </div>
         </div>
 
         <div *ngIf="mode() === 'password'" class="form-block">
           <label>Email</label>
-          <input [(ngModel)]="email" type="email" placeholder="admin@company.com" />
+          <input
+            [(ngModel)]="email"
+            type="email"
+            autocomplete="email"
+            placeholder="admin@company.com"
+          />
           <label>Password</label>
           <input [(ngModel)]="password" type="password" placeholder="Password" />
           <button type="button" (click)="loginWithPassword()" [disabled]="loading()">
@@ -217,11 +245,38 @@ type AuthMode = 'code' | 'password';
         box-shadow: none;
       }
 
+      .code-info {
+        background: rgba(245, 124, 0, 0.08);
+        border: 1px solid rgba(245, 124, 0, 0.2);
+        border-radius: 16px;
+        padding: 16px;
+        text-align: center;
+        margin-bottom: 8px;
+      }
+
+      .code-info p {
+        margin: 0 0 4px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+
+      .code-info strong {
+        color: var(--color-primary);
+        font-size: 1rem;
+        word-break: break-all;
+      }
+
+      .step-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
       button.ghost:hover {
         color: var(--text-primary);
         border-color: rgba(245, 124, 0, 0.35);
-        transform: none;
-        box-shadow: none;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       }
 
       .message {
@@ -257,6 +312,7 @@ export class AdminLoginComponent {
   email = '';
   code = '';
   password = '';
+  private requestedCodeEmail = '';
 
   constructor() {
     if (this.auth.isAuthenticated()) {
@@ -268,16 +324,27 @@ export class AdminLoginComponent {
     this.mode.set(mode);
     this.step.set(1);
     this.message.set('');
+    this.code = '';
+    this.requestedCodeEmail = '';
   }
 
   requestCode(): void {
+    const email = this.normalizeEmail(this.email);
+
+    if (!this.isValidEmail(email)) {
+      this.message.set('Enter a valid email address.');
+      return;
+    }
+
     this.loading.set(true);
     this.message.set('');
+    this.email = email;
 
-    this.auth.requestCode(this.email).subscribe({
+    this.auth.requestCode(email).subscribe({
       next: (response) => {
         this.loading.set(false);
         this.step.set(2);
+        this.requestedCodeEmail = email;
         this.message.set(response.message || 'Verification code sent successfully.');
       },
       error: (error: Error) => {
@@ -288,10 +355,25 @@ export class AdminLoginComponent {
   }
 
   verifyCode(): void {
+    const email = this.requestedCodeEmail || this.normalizeEmail(this.email);
+    const code = this.normalizeCode(this.code);
+
+    if (!this.isValidEmail(email)) {
+      this.message.set('Request a verification code for a valid email first.');
+      this.step.set(1);
+      return;
+    }
+
+    if (!/^\d{6}$/.test(code)) {
+      this.message.set('Enter the 6-digit verification code.');
+      return;
+    }
+
     this.loading.set(true);
     this.message.set('');
+    this.code = code;
 
-    this.auth.verifyCode(this.email, this.code).subscribe({
+    this.auth.verifyCode(email, code).subscribe({
       next: () => {
         this.loading.set(false);
         this.router.navigateByUrl('/admin/dashboard');
@@ -304,10 +386,18 @@ export class AdminLoginComponent {
   }
 
   loginWithPassword(): void {
+    const email = this.normalizeEmail(this.email);
+
+    if (!this.isValidEmail(email)) {
+      this.message.set('Enter a valid email address.');
+      return;
+    }
+
     this.loading.set(true);
     this.message.set('');
+    this.email = email;
 
-    this.auth.login(this.email, this.password).subscribe({
+    this.auth.login(email, this.password).subscribe({
       next: () => {
         this.loading.set(false);
         this.router.navigateByUrl('/admin/dashboard');
@@ -317,5 +407,19 @@ export class AdminLoginComponent {
         this.message.set(error.message);
       },
     });
+  }
+
+  normalizeCode(value: string): string {
+    return String(value ?? '')
+      .replace(/\D/g, '')
+      .slice(0, 6);
+  }
+
+  private normalizeEmail(value: string): string {
+    return String(value ?? '').trim();
+  }
+
+  private isValidEmail(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 }
